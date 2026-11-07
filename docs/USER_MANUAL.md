@@ -52,6 +52,8 @@
 | FPS bajo | Reduzca `LABCOUNT_MAX_FRAME_WIDTH` o use detector "motion". |
 | Sesión huérfana tras reinicio | Se reconcilia automáticamente al abrir el panel. |
 | Error de CSRF | Revise `CSRF_TRUSTED_ORIGINS` y `ALLOWED_HOSTS`. |
+| La cámara abre pero no detecta personas | HOG necesita buena iluminación: ilumine la escena o use el método "Movimiento (MOG2)". |
+| "No se encontró una cámara disponible" | Otra aplicación (Teams, Zoom, navegador) está usando la cámara: ciérrela o pruebe otro índice de cámara. |
 
 ## 7. Atajos
 

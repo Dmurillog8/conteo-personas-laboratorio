@@ -4,7 +4,11 @@ from django.test import SimpleTestCase
 
 from apps.monitoring.services.counter import PeopleCounter
 from apps.monitoring.services.demo import DemoPersonDetector, DemoScene
-from apps.monitoring.services.detectors import HogPersonDetector, MotionPersonDetector
+from apps.monitoring.services.detectors import (
+    HybridPersonDetector,
+    HogPersonDetector,
+    MotionPersonDetector,
+)
 
 
 class DemoTests(SimpleTestCase):
@@ -88,3 +92,36 @@ class DetectorTests(SimpleTestCase):
             self.assertGreaterEqual(y, 0)
             self.assertLessEqual(x + w, 640)
             self.assertLessEqual(y + h, 360)
+
+    def test_hybrid_detector_applies_nms_with_several_boxes(self):
+        """Regresión: el modo híbrido fallaba al aplicar NMS con 2+ cajas."""
+        height, width = 480, 640
+        texture = np.full((height, width, 3), 30, dtype=np.uint8)
+        for x in range(0, width, 80):
+            cv2.line(texture, (x, 0), (x, height), (52, 58, 68), 2)
+
+        detector = HybridPersonDetector()
+        detector.motion.warmup_frames = 3
+
+        boxes: list = []
+        for step in range(24):
+            frame = texture.copy()
+            for index in range(3):
+                x = 40 + index * 190 + step * 5
+                cv2.rectangle(frame, (x, 180), (x + 48, 330), (215, 215, 215), -1)
+                cv2.circle(frame, (x + 24, 168), 14, (205, 205, 205), -1)
+            boxes = detector.detect(frame)
+
+        self.assertIsInstance(boxes, list)
+        for x, y, w, h in boxes:
+            self.assertGreaterEqual(x, 0)
+            self.assertLessEqual(x + w, width)
+            self.assertLessEqual(y + h, height)
+
+    def test_nms_suppresses_overlapping_boxes(self):
+        from apps.monitoring.services.detectors import _nms
+
+        boxes = [(100, 100, 80, 160), (110, 105, 80, 160), (400, 100, 80, 160)]
+        kept = _nms(boxes, [0.9, 0.8, 0.7], 0.4)
+        self.assertLessEqual(len(kept), len(boxes))
+        self.assertTrue(all(box in boxes for box in kept))

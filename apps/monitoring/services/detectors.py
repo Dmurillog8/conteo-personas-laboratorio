@@ -225,7 +225,7 @@ class HybridPersonDetector(BaseDetector):
 
         boxes = list(self._last_hog_boxes) + list(motion_boxes)
         scores = [1.0] * len(self._last_hog_boxes) + [0.9] * len(motion_boxes)
-        return _nms(boxes, scores, nms_threshold=0.35)
+        return _nms(boxes, scores, 0.35)
 
 
 def create_detector(mode: str) -> BaseDetector:

@@ -240,26 +240,31 @@ class StreamManager:
             backends.append(cv2.CAP_ANY)
 
         last_error = "No se encontró una cámara disponible."
-        for backend in backends:
-            capture = cv2.VideoCapture(index, backend)
-            if not capture.isOpened():
-                capture.release()
-                continue
-            try:
-                capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-            except cv2.error:
-                pass
+        # Windows puede tener la cámara ocupada brevemente (otra app, arranque
+        # del dispositivo): se reintenta en varias rondas antes de fallar.
+        for attempt in range(3):
+            for backend in backends:
+                capture = cv2.VideoCapture(index, backend)
+                if not capture.isOpened():
+                    capture.release()
+                    continue
+                try:
+                    capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                except cv2.error:
+                    pass
 
-            for _ in range(20):
-                ok, frame = capture.read()
-                if ok and frame is not None:
-                    return capture, None, frame
-                time.sleep(0.05)
-            capture.release()
-            last_error = (
-                f"La cámara {index} se abrió pero no entregó imagen. "
-                "Cierre otras aplicaciones que la estén usando e intente de nuevo."
-            )
+                for _ in range(20):
+                    ok, frame = capture.read()
+                    if ok and frame is not None:
+                        return capture, None, frame
+                    time.sleep(0.05)
+                capture.release()
+                last_error = (
+                    f"La cámara {index} se abrió pero no entregó imagen. "
+                    "Cierre otras aplicaciones que la estén usando e intente de nuevo."
+                )
+            if attempt < 2:
+                time.sleep(0.8)
 
         raise StreamSourceError(last_error)
 
