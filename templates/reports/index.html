@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes · LabCount{% endblock %}
+{% block eyebrow %}Analítica{% endblock %}
+{% block page_title %}Reportes de ocupación{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+  <div>
+    <h2>Resumen del laboratorio</h2>
+    <p>Indicadores agregados de las sesiones de conteo registradas en el periodo seleccionado.</p>
+  </div>
+  <div class="period-tabs">
+    {% for value, label in periods.items %}
+      <a href="?days={{ value }}" class="period-tab {% if days == value %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="summary-grid summary-grid-six">
+  <article class="summary-card">
+    <span class="summary-icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v2H4V5Zm0 6h10v2H4v-2Zm0 6h16v2H4v-2Z"/></svg>
+    </span>
+    <div><span>Sesiones</span><strong>{{ summary.total_sessions|default:0 }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon green">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 5 11h4v7h6v-7h4l-7-7Z"/></svg>
+    </span>
+    <div><span>Entradas</span><strong>{{ summary.total_entries }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon orange">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 5 13h4V6h6v7h4l-7 7Z"/></svg>
+    </span>
+    <div><span>Salidas</span><strong>{{ summary.total_exits }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon purple">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm7 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 20c0-4 3.1-7 7-7s7 3 7 7H2Z"/></svg>
+    </span>
+    <div><span>Visitantes únicos</span><strong>{{ summary.total_unique }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon blue">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3Zm0 4.2 6.8 11.3H5.2L12 7.2ZM11 10h2v5h-2v-5Zm0 6h2v2h-2v-2Z"/></svg>
+    </span>
+    <div><span>Pico máximo</span><strong>{{ summary.max_peak }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon slate">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5v5.4l3.2 1.9-1 1.7L11 13.5V7h2Z"/></svg>
+    </span>
+    <div><span>Duración promedio</span><strong>{{ summary.avg_duration_display }}</strong></div>
+  </article>
+</section>
+
+<section class="card chart-card report-chart-card">
+  <div class="card-header chart-header">
+    <div>
+      <span class="card-kicker">Actividad diaria</span>
+      <h3>Entradas registradas · {{ period_label }}</h3>
+    </div>
+    <a href="{% url 'reports:export_sessions' %}?days={{ days }}" class="btn btn-secondary btn-sm">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17.4l-4.7-4.7 1.4-1.4 3.3 3.3V3h2ZM5 19h14v2H5v-2Z"/></svg>
+      Exportar sesiones
+    </a>
+  </div>
+  {% if summary.total_sessions %}
+    <div class="bar-chart" role="img" aria-label="Gráfica de entradas por día">
+      {% for day in daily %}
+        <div class="bar-column" title="{{ day.day|date:'d/m/Y' }} · {{ day.entries }} entradas · {{ day.session_count }} sesiones">
+          <span class="bar-value">{{ day.entries|default:"" }}</span>
+          <div class="bar-track">
+            <span class="bar-fill" style="height: {{ day.height }}%"></span>
+          </div>
+          {% if forloop.counter0|divisibleby:5 or forloop.last %}
+            <span class="bar-label">{{ day.label }}</span>
+          {% else %}
+            <span class="bar-label">&nbsp;</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="chart-footnote">Cada barra representa un día del periodo. Pasa el cursor para ver el detalle.</div>
+  {% else %}
+    <div class="empty-panel">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9h4v11H4Zm6 0V4h4v16h-4Zm6 0v-6h4v6h-4Z"/></svg>
+      </span>
+      <h3>Sin datos en el periodo</h3>
+      <p>No hay sesiones registradas en los últimos {{ days }} días. Inicia una sesión para generar información.</p>
+      <a href="{% url 'monitoring:dashboard' %}" class="btn btn-primary">Ir al panel</a>
+    </div>
+  {% endif %}
+</section>
+
+<div class="reports-grid">
+  <section class="card">
+    <div class="card-header">
+      <div><span class="card-kicker">Por laboratorio</span><h3>Distribución de la actividad</h3></div>
+    </div>
+    {% if by_lab %}
+      <div class="table-scroll">
+        <table class="data-table compact">
+          <thead><tr><th>Laboratorio</th><th>Sesiones</th><th>Entradas</th><th>Únicos</th><th>Pico</th><th>Aforo</th></tr></thead>
+          <tbody>
+            {% for lab in by_lab %}
+              <tr>
+                <td><span class="table-primary">{{ lab.laboratory__name }}</span></td>
+                <td>{{ lab.session_count }}</td>
+                <td>{{ lab.entries|default:0 }}</td>
+                <td>{{ lab.unique|default:0 }}</td>
+                <td><span class="count-badge">{{ lab.peak|default:0 }}</span></td>
+                <td>{{ lab.laboratory__capacity }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-inline"><p>No hay laboratorios con actividad en este periodo.</p></div>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div><span class="card-kicker">Sesiones destacadas</span><h3>Mayores picos de ocupación</h3></div>
+    </div>
+    {% if top_sessions %}
+      <ul class="rank-list">
+        {% for session in top_sessions %}
+          <li>
+            <span class="rank-number">{{ forloop.counter }}</span>
+            <div class="rank-copy">
+              <a href="{% url 'monitoring:session_detail' session.pk %}">{{ session.laboratory.name }}</a>
+              <small>{{ session.started_at|date:"d/m/Y H:i" }} · {{ session.duration_display }}</small>
+            </div>
+            <span class="rank-peak">{{ session.peak_occupancy }}<small>pico</small></span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-inline"><p>Sin sesiones destacadas.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

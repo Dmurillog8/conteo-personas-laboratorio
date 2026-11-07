@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}LabCount · Conteo de personas en el laboratorio{% endblock %}
+
+{% block public_content %}
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <span class="hero-badge"><span class="pulse-dot"></span> Visión por computador en tiempo real</span>
+      <h1>Conteo de personas para un <span>laboratorio más seguro</span></h1>
+      <p>
+        Monitoree la ocupación del laboratorio con OpenCV, gestione el aforo y consulte
+        métricas históricas desde una interfaz web construida con Django y PostgreSQL.
+      </p>
+      <div class="hero-actions">
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">
+          Acceder al panel
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 5l7 7-7 7-1.4-1.4 4.6-4.6H4v-2h12.2L11.6 6.4 13 5Z"/></svg>
+        </a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-ghost btn-lg">Crear una cuenta</a>
+      </div>
+      <div class="hero-tech">
+        <span>Python</span><span>Django</span><span>OpenCV</span><span>PostgreSQL</span>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="mock-window">
+        <div class="mock-topbar">
+          <span class="mock-brand"><span class="mock-logo"></span> LabCount</span>
+          <span class="mock-live"><span class="pulse-dot"></span> EN VIVO</span>
+        </div>
+        <div class="mock-video">
+          <div class="mock-room">
+            <span class="mock-board">LABORATORIO P</span>
+            <div class="mock-person person-a"><span class="head"></span><span class="body"></span></div>
+            <div class="mock-person person-b"><span class="head"></span><span class="body"></span></div>
+            <div class="mock-person person-c"><span class="head"></span><span class="body"></span></div>
+            <div class="mock-count-line"></div>
+            <div class="mock-box box-a"><span>ID 01</span></div>
+            <div class="mock-box box-b"><span>ID 02</span></div>
+            <div class="mock-hud">
+              <small>PERSONAS EN EL LABORATORIO</small>
+              <strong>03</strong>
+              <span>Entradas 12 · Salidas 9</span>
+            </div>
+            <div class="mock-fps">15.8 FPS</div>
+            <div class="mock-scan"></div>
+          </div>
+        </div>
+        <div class="mock-bottom">
+          <div><span>Ocupación</span><strong>3 / 200</strong></div>
+          <div><span>Visitantes</span><strong>24</strong></div>
+          <div><span>Precisión</span><strong>98.4%</strong></div>
+        </div>
+      </div>
+      <div class="floating-card float-opencv">
+        <span class="float-icon">CV</span>
+        <span><strong>OpenCV</strong><small>Detección + seguimiento</small></span>
+      </div>
+      <div class="floating-card float-db">
+        <span class="float-icon db">PG</span>
+        <span><strong>PostgreSQL</strong><small>Histórico persistente</small></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="landing-section">
+  <div class="section-heading">
+    <span class="eyebrow">Funcionalidades</span>
+    <h2>Todo el flujo de conteo en una sola plataforma</h2>
+    <p>Desde la captura de la cámara hasta el reporte de ocupación del laboratorio.</p>
+  </div>
+  <div class="feature-grid">
+    <article class="feature-card">
+      <span class="feature-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm8 2.5A4.5 4.5 0 1 0 12 18a4.5 4.5 0 0 0 0-9Zm0 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"/></svg>
+      </span>
+      <h3>Captura en vivo</h3>
+      <p>Transmisión MJPEG desde cámara web, archivo de video o escena de demostración, sin recargar la página.</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+      </span>
+      <h3>Detección con OpenCV</h3>
+      <p>HOG, sustracción de fondo MOG2 y un modo híbrido para detectar personas y mantener un ID estable.</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9h4v11H4Zm6 0V4h4v16h-4Zm6 0v-6h4v6h-4Z"/></svg>
+      </span>
+      <h3>Métricas e historial</h3>
+      <p>Ocupación actual, entradas, salidas, visitantes únicos, picos y gráficas de evolución por sesión.</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Zm0 4a3 3 0 0 1 3 3v1h1v5H8v-5h1v-1a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v1h2v-1a1 1 0 0 0-1-1Z"/></svg>
+      </span>
+      <h3>Acceso seguro</h3>
+      <p>Registro e inicio de sesión, sesiones privadas por usuario y panel de administración de Django.</p>
+    </article>
+  </div>
+</section>
+
+<section class="landing-section steps-section">
+  <div class="section-heading">
+    <span class="eyebrow">Cómo funciona</span>
+    <h2>Tres pasos para monitorear el aforo</h2>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <span class="step-number">01</span>
+      <h3>Inicia la fuente</h3>
+      <p>Selecciona la cámara del laboratorio, sube un video o utiliza la escena de demostración.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">02</span>
+      <h3>OpenCV procesa</h3>
+      <p>El motor detecta personas, las sigue entre frames y cuenta los cruces de la línea virtual.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-number">03</span>
+      <h3>Analiza resultados</h3>
+      <p>Consulta ocupación, picos, entradas, salidas y reportes exportables en CSV.</p>
+    </div>
+  </div>
+</section>
+
+<section class="landing-cta">
+  <div>
+    <span class="eyebrow light">Listo para comenzar</span>
+    <h2>Controle el aforo de su laboratorio hoy</h2>
+    <p>Cree una cuenta y acceda al panel de monitoreo en tiempo real.</p>
+  </div>
+  <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">Crear cuenta gratis</a>
+</section>
+{% endblock %}

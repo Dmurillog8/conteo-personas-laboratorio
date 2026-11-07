@@ -1,0 +1,21 @@
+{% if messages %}
+  <div class="messages" aria-live="polite">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }}">
+        <span class="alert-icon">
+          {% if message.tags == 'success' %}
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 7.6-7.6 1.4 1.4-9 9Z"/></svg>
+          {% elif message.tags == 'error' %}
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3Zm0 4.2 6.8 11.3H5.2L12 7.2ZM11 10h2v5h-2v-5Zm0 6h2v2h-2v-2Z"/></svg>
+          {% elif message.tags == 'warning' %}
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3Zm0 4.2 6.8 11.3H5.2L12 7.2ZM11 10h2v5h-2v-5Zm0 6h2v2h-2v-2Z"/></svg>
+          {% else %}
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 10h2v7h-2v-7Zm0-4h2v2h-2V6Zm1-3a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Z"/></svg>
+          {% endif %}
+        </span>
+        <span class="alert-text">{{ message }}</span>
+        <button type="button" class="alert-close" aria-label="Cerrar">&times;</button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

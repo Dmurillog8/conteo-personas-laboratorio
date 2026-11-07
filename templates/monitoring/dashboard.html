@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Panel de monitoreo · LabCount{% endblock %}
+{% block eyebrow %}Monitoreo en vivo{% endblock %}
+{% block page_title %}Conteo de personas{% endblock %}
+
+{% block content %}
+<div id="dashboardConfig"
+     data-live="{% if live %}true{% else %}false{% endif %}"
+     data-stats-url="{% url 'monitoring:api_stats' %}"
+     data-stream-url="{% url 'monitoring:stream' %}">
+</div>
+{{ history|json_script:"live-history" }}
+
+{% if live %}
+  <section class="page-intro">
+    <div>
+      <div class="title-with-status">
+        <h2>{{ active_session.laboratory.name }}</h2>
+        <span class="status-pill status-live"><span class="pulse-dot"></span> En vivo</span>
+      </div>
+      <p>
+        Sesión iniciada {{ active_session.started_at|naturaltime }} ·
+        {{ active_session.get_detection_mode_display }} ·
+        Responsable: {{ stats.owner|default:"—" }}
+      </p>
+    </div>
+    <div class="intro-actions">
+      <span class="source-chip">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/></svg>
+        {{ active_session.source_description }}
+      </span>
+    </div>
+  </section>
+
+  <section class="live-layout">
+    <article class="card video-card">
+      <div class="video-shell">
+        <img id="liveStream" src="{% url 'monitoring:stream' %}" alt="Transmisión de video con conteo de personas" loading="eager">
+        <div class="video-top-overlay">
+          <span class="video-live"><span class="pulse-dot"></span> Cámara activa</span>
+          <span class="video-opencv">OpenCV {{ OPENCV_VERSION }}</span>
+        </div>
+        <div class="video-bottom-overlay">
+          <span><span class="dot-cyan"></span> Línea virtual de conteo</span>
+          <span id="streamFps">{{ stats.fps|default:0 }} FPS</span>
+        </div>
+      </div>
+      <div class="video-footer">
+        <div class="source-info">
+          <span class="source-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm8 2.5A4.5 4.5 0 1 0 12 18a4.5 4.5 0 0 0 0-9Zm0 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z"/></svg>
+          </span>
+          <div>
+            <strong>{{ active_session.source_description }}</strong>
+            <span>{{ active_session.get_detection_mode_display }} · {{ stats.detector|default:"OpenCV" }}</span>
+          </div>
+        </div>
+        <div class="video-actions">
+          {% if stats.can_control %}
+            <form method="post" action="{% url 'monitoring:snapshot' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm8 2.5A4.5 4.5 0 1 0 12 18a4.5 4.5 0 0 0 0-9Z"/></svg>
+                Guardar captura
+              </button>
+            </form>
+            <form method="post" action="{% url 'monitoring:stop' %}" data-confirm="¿Desea detener la sesión de monitoreo? Se guardará el historial actual.">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7V7Z"/></svg>
+                Detener
+              </button>
+            </form>
+          {% else %}
+            <span class="readonly-chip">Solo lectura</span>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+
+    <aside class="live-side">
+      <article class="card occupancy-card">
+        <div class="card-header">
+          <div>
+            <span class="card-kicker">Ocupación actual</span>
+            <h3>Personas en el laboratorio</h3>
+          </div>
+          <span class="live-dot" title="Actualización en tiempo real"></span>
+        </div>
+        <div class="occupancy-main">
+          <div class="occupancy-ring" id="occupancyRing" style="--pct: {{ stats.percent|default:0 }}">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="ring-track" cx="60" cy="60" r="48" pathLength="100"></circle>
+              <circle class="ring-progress" cx="60" cy="60" r="48" pathLength="100"></circle>
+            </svg>
+            <div class="ring-value">
+              <strong id="currentCount">{{ stats.current|default:0 }}</strong>
+              <span>personas</span>
+            </div>
+          </div>
+          <div class="occupancy-meta">
+            <div class="occ-block">
+              <span class="label">Aforo del laboratorio</span>
+              <strong>{{ active_session.laboratory.capacity }}</strong>
+            </div>
+            <div class="occ-block">
+              <span class="label">Pico de la sesión</span>
+              <strong id="peakCount">{{ stats.peak|default:0 }}</strong>
+            </div>
+            <div class="occ-block">
+              <span class="label">Duración</span>
+              <strong id="elapsedTime">{{ stats.elapsed|default:"00:00" }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="occupancy-progress">
+          <div class="progress-track"><span id="occupancyBar" style="width: {{ stats.percent|default:0 }}%"></span></div>
+          <div class="progress-meta">
+            <span id="occupancyPercent">{{ stats.percent|default:0 }}% del aforo</span>
+            <span id="occupancyStatus">Dentro del límite</span>
+          </div>
+        </div>
+        <p class="occupancy-note" id="occupancyNote">Actualización automática cada segundo mediante OpenCV.</p>
+      </article>
+
+      <div class="metric-grid">
+        <article class="metric-card metric-in">
+          <span class="metric-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 5 11h4v7h6v-7h4l-7-7Z"/></svg>
+          </span>
+          <span class="metric-label">Entradas</span>
+          <strong id="entriesCount">{{ stats.entries|default:0 }}</strong>
+        </article>
+        <article class="metric-card metric-out">
+          <span class="metric-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 5 13h4V6h6v7h4l-7 7Z"/></svg>
+          </span>
+          <span class="metric-label">Salidas</span>
+          <strong id="exitsCount">{{ stats.exits|default:0 }}</strong>
+        </article>
+        <article class="metric-card metric-unique">
+          <span class="metric-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm7 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 20c0-4 3.1-7 7-7s7 3 7 7h-2c0-2.8-2.2-5-5-5s-5 2.2-5 5H2Zm13.5 0c-.2-1.4-.7-2.7-1.5-3.8.8-.4 1.6-.6 2.5-.6 3.9 0 7 3 7 7h-8v-1.1c0-.5 0-1 0-1.5Z"/></svg>
+          </span>
+          <span class="metric-label">Visitantes únicos</span>
+          <strong id="uniqueCount">{{ stats.unique|default:0 }}</strong>
+        </article>
+        <article class="metric-card metric-fps">
+          <span class="metric-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v2H5v4H3V3Zm18 0v6h-2V5h-4V3h6ZM3 21v-6h2v4h4v2H3Zm18 0h-6v-2h4v-4h2v6ZM12 7a5 5 0 0 1 5 5h-2a3 3 0 0 0-6 0H7a5 5 0 0 1 5-5Z"/></svg>
+          </span>
+          <span class="metric-label">Rendimiento</span>
+          <strong><span id="fpsValue">{{ stats.fps|default:0 }}</span><small> FPS</small></strong>
+        </article>
+      </div>
+
+      <article class="card session-meta-card">
+        <div class="meta-row"><span>Laboratorio</span><strong>{{ active_session.laboratory.name }}</strong></div>
+        <div class="meta-row"><span>Inicio</span><strong>{{ active_session.started_at|date:"d/m/Y H:i" }}</strong></div>
+        <div class="meta-row"><span>Detecciones por frame</span><strong id="detectionsValue">{{ stats.detections|default:0 }}</strong></div>
+        <div class="meta-row"><span>Base de datos</span><strong class="text-success">PostgreSQL</strong></div>
+      </article>
+    </aside>
+  </section>
+
+  <section class="card chart-card">
+    <div class="card-header chart-header">
+      <div>
+        <span class="card-kicker">Evolución de la ocupación</span>
+        <h3>Últimos minutos de la sesión</h3>
+      </div>
+      <div class="chart-legend">
+        <span><i class="legend-line"></i> Personas</span>
+        <span><i class="legend-area"></i> Tendencia</span>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="liveChart" data-capacity="{{ active_session.laboratory.capacity }}" aria-label="Gráfica de ocupación"></canvas>
+    </div>
+  </section>
+
+{% else %}
+  <section class="page-intro">
+    <div>
+      <h2>Inicia una sesión de conteo</h2>
+      <p>Selecciona la fuente de video y configura la línea virtual para comenzar a detectar personas.</p>
+    </div>
+    <span class="status-pill status-idle"><span class="dot"></span> Sin transmisión</span>
+  </section>
+
+  <section class="start-layout">
+    <article class="card start-card">
+      <div class="card-header">
+        <div>
+          <span class="card-kicker">Nueva sesión</span>
+          <h3>Configuración del monitoreo</h3>
+        </div>
+        <span class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/></svg>
+        </span>
+      </div>
+
+      {% if laboratories %}
+      <form method="post" action="{% url 'monitoring:start' %}" enctype="multipart/form-data" class="start-form" id="startForm" novalidate>
+        {% csrf_token %}
+
+        <div class="form-section">
+          <span class="form-section-title">1. Laboratorio</span>
+          <div class="field">
+            <label for="{{ form.laboratory.id_for_label }}">Laboratorio a monitorear</label>
+            {{ form.laboratory }}
+            {% if form.laboratory.errors %}<span class="field-error">{{ form.laboratory.errors|join:", " }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-section">
+          <span class="form-section-title">2. Fuente de video</span>
+          <div class="source-options" id="sourceOptions">
+            {% for value, label in form.source_type.field.choices %}
+              <label class="source-option {% if form.source_type.value == value %}selected{% endif %}" data-source-label="{{ value }}">
+                <input type="radio" name="source_type" value="{{ value }}" {% if form.source_type.value == value %}checked{% endif %}>
+                <span class="source-option-icon">
+                  {% if value == 'webcam' %}
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm8 2.5A4.5 4.5 0 1 0 12 18a4.5 4.5 0 0 0 0-9Z"/></svg>
+                  {% elif value == 'video' %}
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm6 3v8l6-4-6-4Z"/></svg>
+                  {% else %}
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.7 3.7L12 11.7 5.3 8 12 4.3ZM5 9.9l6 3.3v6.4l-6-3.3V9.9Zm8 9.7v-6.4l6-3.3v6.4l-6 3.3Z"/></svg>
+                  {% endif %}
+                </span>
+                <span class="source-option-copy">
+                  <strong>
+                    {% if value == 'webcam' %}Cámara web{% elif value == 'video' %}Archivo de video{% else %}Demostración{% endif %}
+                  </strong>
+                  <small>
+                    {% if value == 'webcam' %}Captura en tiempo real desde la cámara del equipo.
+                    {% elif value == 'video' %}Procesa un video grabado y lo reproduce en bucle.
+                    {% else %}Escena sintética para presentar sin cámara física.{% endif %}
+                  </small>
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+
+          <div class="source-panel" data-source-panel="webcam">
+            <div class="field field-inline">
+              <label for="{{ form.webcam_index.id_for_label }}">Número de cámara</label>
+              {{ form.webcam_index }}
+              <span class="field-hint">Usa 0 para la cámara principal; prueba 1 o 2 si tienes varias.</span>
+            </div>
+          </div>
+
+          <div class="source-panel" data-source-panel="video" hidden>
+            <div class="field">
+              <label for="{{ form.video_file.id_for_label }}">Archivo de video</label>
+              <label class="file-drop" for="{{ form.video_file.id_for_label }}">
+                <span class="file-drop-icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 6 9h4v6h4V9h4l-6-6ZM5 19h14v2H5v-2Z"/></svg>
+                </span>
+                <span class="file-drop-copy">
+                  <strong data-file-name>Seleccionar un video</strong>
+                  <small>MP4, AVI, MOV, MKV o WEBM · máximo 250 MB</small>
+                </span>
+                {{ form.video_file }}
+              </label>
+              {% if form.video_file.errors %}<span class="field-error">{{ form.video_file.errors|join:", " }}</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="source-panel source-info-panel" data-source-panel="demo" hidden>
+            <span class="info-icon">i</span>
+            <p>
+              La modalidad de demostración genera una escena de laboratorio con personas en movimiento.
+              Es ideal para presentar el flujo completo sin depender de una cámara física.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <span class="form-section-title">3. Detección y línea de conteo</span>
+          <div class="field-grid">
+            <div class="field">
+              <label for="{{ form.detection_mode.id_for_label }}">Método de detección</label>
+              {{ form.detection_mode }}
+            </div>
+            <div class="field">
+              <label for="{{ form.line_orientation.id_for_label }}">Orientación de la línea</label>
+              {{ form.line_orientation }}
+            </div>
+          </div>
+
+          <div class="field range-field">
+            <div class="range-label">
+              <label for="linePosition">Posición de la línea</label>
+              <output id="linePositionValue" for="linePosition">{{ form.line_position.value|default:"0.5" }}</output>
+            </div>
+            <input type="range" id="linePosition" name="line_position" min="0.1" max="0.9" step="0.01"
+                   value="{{ form.line_position.value|default:'0.5' }}">
+            <span class="field-hint">Ajusta dónde cruza la línea virtual: 10% a 90% del ancho o alto del video.</span>
+            {% if form.line_position.errors %}<span class="field-error">{{ form.line_position.errors|join:", " }}</span>{% endif %}
+          </div>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="form-alert">{{ form.non_field_errors|join:", " }}</div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z"/></svg>
+          Iniciar monitoreo
+        </button>
+      </form>
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-icon">!</span>
+          <h3>No hay laboratorios activos</h3>
+          <p>Crea un laboratorio desde el panel de administración para poder iniciar una sesión.</p>
+          {% if user.is_staff %}<a class="btn btn-primary" href="{% url 'admin:core_laboratory_add' %}">Crear laboratorio</a>{% endif %}
+        </div>
+      {% endif %}
+    </article>
+
+    <aside class="start-side">
+      <article class="card system-card">
+        <div class="card-header">
+          <div>
+            <span class="card-kicker">Estado del sistema</span>
+            <h3>Componentes activos</h3>
+          </div>
+          <span class="status-pill status-ok"><span class="dot"></span> Listo</span>
+        </div>
+        <ul class="system-list">
+          <li>
+            <span class="system-icon">PY</span>
+            <span><strong>Python + Django</strong><small>Aplicación web en ejecución</small></span>
+            <span class="check-dot"></span>
+          </li>
+          <li>
+            <span class="system-icon cv">CV</span>
+            <span><strong>OpenCV {{ OPENCV_VERSION }}</strong><small>Motor de visión por computador</small></span>
+            <span class="check-dot"></span>
+          </li>
+          <li>
+            <span class="system-icon db">PG</span>
+            <span><strong>{{ system.database }}</strong><small>Base de datos de sesiones</small></span>
+            <span class="check-dot"></span>
+          </li>
+          <li>
+            <span class="system-icon fps">FPS</span>
+            <span><strong>{{ system.frame_rate }} FPS</strong><small>Frecuencia de la transmisión</small></span>
+            <span class="check-dot"></span>
+          </li>
+        </ul>
+      </article>
+
+      <article class="card steps-card">
+        <span class="card-kicker">Cómo funciona</span>
+        <ol class="mini-steps">
+          <li><span>1</span><div><strong>Inicia la fuente</strong><p>OpenCV abre la cámara o el video seleccionado.</p></div></li>
+          <li><span>2</span><div><strong>Detección y seguimiento</strong><p>Las personas reciben un ID y se cuenta su cruce por la línea.</p></div></li>
+          <li><span>3</span><div><strong>Analiza los resultados</strong><p>El panel actualiza ocupación, entradas y salidas en vivo.</p></div></li>
+        </ol>
+      </article>
+
+      <article class="tip-card">
+        <span class="tip-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Zm-4 17h8v2H8v-2Z"/></svg>
+        </span>
+        <div>
+          <strong>Consejo para el laboratorio</strong>
+          <p>Ubica la cámara a la altura de los hombros y evita contraluz para mejorar la detección de personas.</p>
+        </div>
+      </article>
+    </aside>
+  </section>
+{% endif %}
+
+<section class="recent-section">
+  <div class="section-bar">
+    <div>
+      <span class="card-kicker">Actividad reciente</span>
+      <h3>Últimas sesiones</h3>
+    </div>
+    <a href="{% url 'monitoring:sessions' %}" class="link-arrow">Ver historial completo <span>→</span></a>
+  </div>
+  {% if recent_sessions %}
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Sesión</th>
+            <th>Laboratorio</th>
+            <th>Fuente</th>
+            <th>Pico</th>
+            <th>Entradas</th>
+            <th>Duración</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for session in recent_sessions %}
+            <tr>
+              <td>
+                <span class="table-primary">{{ session.started_at|date:"d M Y" }}</span>
+                <span class="table-secondary">{{ session.started_at|date:"H:i" }}</span>
+              </td>
+              <td>{{ session.laboratory.name }}</td>
+              <td><span class="source-tag">{{ session.get_source_type_display }}</span></td>
+              <td><span class="count-badge">{{ session.peak_occupancy }}</span></td>
+              <td>{{ session.total_entries }}</td>
+              <td>{{ session.duration_display }}</td>
+              <td>
+                <span class="status-pill status-{{ session.status }}">
+                  {{ session.get_status_display }}
+                </span>
+              </td>
+              <td><a class="table-link" href="{% url 'monitoring:session_detail' session.pk %}">Ver</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-panel">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v2H4V5Zm0 6h10v2H4v-2Zm0 6h16v2H4v-2Z"/></svg>
+      </span>
+      <h3>Aún no hay sesiones registradas</h3>
+      <p>Inicia tu primera sesión de conteo para ver los resultados aquí.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  {% load static %}
+  <script src="{% static 'js/charts.js' %}"></script>
+  <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

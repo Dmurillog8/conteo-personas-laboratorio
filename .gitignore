@@ -1,0 +1,46 @@
+# Entornos y dependencias locales
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Base de datos local
+db.sqlite3
+db.sqlite3-journal
+
+# Archivos generados
+/media/
+/staticfiles/
+*.log
+logs/*.log
+
+# Archivos temporales / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Cobertura y pruebas
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Docker
+.dockerignore

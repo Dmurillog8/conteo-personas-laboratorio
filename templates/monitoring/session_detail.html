@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Sesión #{{ session.pk }} · LabCount{% endblock %}
+{% block eyebrow %}Detalle de sesión{% endblock %}
+{% block page_title %}Sesión #{{ session.pk }}{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+  <div>
+    <div class="title-with-status">
+      <h2>{{ session.laboratory.name }}</h2>
+      <span class="status-pill status-{{ session.status }}">{{ session.get_status_display }}</span>
+    </div>
+    <p>{{ session.started_at|date:"l, d \d\e F \d\e Y · H:i" }} · {{ session.source_description }}</p>
+  </div>
+  <div class="intro-actions">
+    <a href="{% url 'monitoring:sessions' %}" class="btn btn-ghost">← Volver al historial</a>
+    <a href="{% url 'reports:export_session' session.pk %}" class="btn btn-secondary">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17.4l-4.7-4.7 1.4-1.4 3.3 3.3V3h2ZM5 19h14v2H5v-2Z"/></svg>
+      Exportar CSV
+    </a>
+  </div>
+</section>
+
+<section class="summary-grid summary-grid-five">
+  <article class="summary-card">
+    <span class="summary-icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+    </span>
+    <div><span>Pico de ocupación</span><strong>{{ session.peak_occupancy }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon green">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 5 11h4v7h6v-7h4l-7-7Z"/></svg>
+    </span>
+    <div><span>Entradas</span><strong>{{ session.total_entries }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon orange">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 5 13h4V6h6v7h4l-7 7Z"/></svg>
+    </span>
+    <div><span>Salidas</span><strong>{{ session.total_exits }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon purple">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm7 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 20c0-4 3.1-7 7-7s7 3 7 7H2Z"/></svg>
+    </span>
+    <div><span>Visitantes únicos</span><strong>{{ session.unique_visitors }}</strong></div>
+  </article>
+  <article class="summary-card">
+    <span class="summary-icon blue">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5v5.4l3.2 1.9-1 1.7L11 13.5V7h2Z"/></svg>
+    </span>
+    <div><span>Duración</span><strong>{{ session.duration_display }}</strong></div>
+  </article>
+</section>
+
+<div class="detail-layout">
+  <div class="detail-main">
+    <section class="card chart-card">
+      <div class="card-header chart-header">
+        <div>
+          <span class="card-kicker">Ocupación registrada</span>
+          <h3>Evolución durante la sesión</h3>
+        </div>
+        <span class="chart-capacity">Aforo: {{ session.laboratory.capacity }}</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="sessionChart" data-capacity="{{ session.laboratory.capacity }}" aria-label="Gráfica de ocupación de la sesión"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <span class="card-kicker">Movimientos</span>
+          <h3>Cruces de la línea virtual</h3>
+        </div>
+        <span class="badge-neutral">{{ crossings|length }} registros recientes</span>
+      </div>
+      {% if crossings %}
+        <div class="table-scroll">
+          <table class="data-table compact">
+            <thead>
+              <tr><th>Hora</th><th>Dirección</th><th>ID de seguimiento</th></tr>
+            </thead>
+            <tbody>
+              {% for crossing in crossings %}
+                <tr>
+                  <td>{{ crossing.occurred_at|date:"d/m/Y H:i:s" }}</td>
+                  <td>
+                    {% if crossing.direction == "in" %}
+                      <span class="direction-pill direction-in">↑ Entrada</span>
+                    {% else %}
+                      <span class="direction-pill direction-out">↓ Salida</span>
+                    {% endif %}
+                  </td>
+                  <td>#{{ crossing.track_id }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-inline">
+          <p>No se registraron cruces de línea en esta sesión. Es posible que las personas no atravesaran la línea virtual.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <span class="card-kicker">Evidencia</span>
+          <h3>Capturas guardadas</h3>
+        </div>
+        <span class="badge-neutral">{{ snapshots|length }} capturas</span>
+      </div>
+      {% if snapshots %}
+        <div class="snapshot-grid">
+          {% for snapshot in snapshots %}
+            <a class="snapshot-item" href="{{ snapshot.image.url }}" target="_blank" rel="noopener">
+              <img src="{{ snapshot.image.url }}" alt="Captura de la sesión {{ session.pk }}" loading="lazy">
+              <span class="snapshot-meta">
+                <strong>{{ snapshot.occupancy }} personas</strong>
+                <small>{{ snapshot.created_at|date:"H:i:s" }}</small>
+              </span>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-inline">
+          <p>No hay capturas manuales. Durante una sesión activa puedes usar el botón «Guardar captura».</p>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="detail-side">
+    <section class="card session-info-card">
+      <div class="card-header">
+        <div><span class="card-kicker">Información</span><h3>Datos de la sesión</h3></div>
+      </div>
+      <dl class="info-list">
+        <div><dt>Laboratorio</dt><dd>{{ session.laboratory.name }}</dd></div>
+        <div><dt>Ubicación</dt><dd>{{ session.laboratory.location|default:"—" }}</dd></div>
+        <div><dt>Fuente</dt><dd>{{ session.source_description }}</dd></div>
+        <div><dt>Detección</dt><dd>{{ session.get_detection_mode_display }}</dd></div>
+        <div><dt>Línea virtual</dt><dd>{{ session.get_line_orientation_display }} · {{ session.line_position|floatformat:2 }}</dd></div>
+        <div><dt>Responsable</dt><dd>{{ session.created_by.get_full_name|default:session.created_by.username|default:"—" }}</dd></div>
+        <div><dt>Inicio</dt><dd>{{ session.started_at|date:"d/m/Y H:i:s" }}</dd></div>
+        <div><dt>Fin</dt><dd>{{ session.ended_at|date:"d/m/Y H:i:s"|default:"En curso" }}</dd></div>
+        <div><dt>Duración</dt><dd>{{ session.duration_display }}</dd></div>
+      </dl>
+      {% if session.last_error %}
+        <div class="error-box"><strong>Último error</strong><p>{{ session.last_error }}</p></div>
+      {% endif %}
+    </section>
+
+    <section class="card hint-card">
+      <span class="hint-icon">i</span>
+      <div>
+        <strong>Interpretación</strong>
+        <p>La ocupación es el número de pistas confirmadas presentes. Las entradas y salidas corresponden a cruces de la línea virtual en cada dirección.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  {% load static %}
+  {{ chart_data|json_script:"session-chart-data" }}
+  <script src="{% static 'js/charts.js' %}"></script>
+  <script>
+    (function () {
+      const canvas = document.getElementById("sessionChart");
+      const dataEl = document.getElementById("session-chart-data");
+      if (!canvas || !dataEl) return;
+      const data = JSON.parse(dataEl.textContent || "[]");
+      new LabCountChart(canvas, { capacity: Number(canvas.dataset.capacity) || 0 }).setData(data);
+    })();
+  </script>
+{% endblock %}

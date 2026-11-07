@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesión · LabCount{% endblock %}
+
+{% block public_content %}
+<section class="auth-page">
+  <div class="auth-card">
+    <aside class="auth-visual">
+      <div class="auth-visual-top">
+        <span class="hero-badge small"><span class="pulse-dot"></span> Monitoreo inteligente</span>
+        <h2>El aforo del laboratorio, bajo control.</h2>
+        <p>Visualiza la ocupación en tiempo real y toma decisiones con datos históricos confiables.</p>
+      </div>
+      <ul class="auth-list">
+        <li><span class="check">✓</span> Detección y seguimiento con OpenCV</li>
+        <li><span class="check">✓</span> Transmisión de video en vivo</li>
+        <li><span class="check">✓</span> Historial y reportes exportables</li>
+        <li><span class="check">✓</span> Base de datos PostgreSQL</li>
+      </ul>
+      <div class="auth-quote">
+        <span class="quote-mark">“</span>
+        <p>La seguridad del laboratorio empieza por conocer cuántas personas están dentro.</p>
+      </div>
+    </aside>
+
+    <section class="auth-form-panel">
+      <span class="eyebrow">Bienvenido de nuevo</span>
+      <h1>Inicia sesión</h1>
+      <p class="auth-subtitle">Accede al panel de conteo de personas del laboratorio.</p>
+
+      <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+        {% if form.non_field_errors %}
+          <div class="form-alert">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="field">
+          <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+          {{ form.username }}
+          {% if form.username.errors %}<span class="field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.password.id_for_label }}">Contraseña</label>
+          <div class="password-wrap">
+            {{ form.password }}
+            <button type="button" class="password-toggle" data-toggle-password="{{ form.password.id_for_label }}" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+          {% if form.password.errors %}<span class="field-error">{{ form.password.errors|join:", " }}</span>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          Entrar al panel
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 5l7 7-7 7-1.4-1.4 4.6-4.6H4v-2h12.2L11.6 6.4 13 5Z"/></svg>
+        </button>
+      </form>
+
+      <p class="auth-switch">¿No tienes una cuenta? <a href="{% url 'accounts:register' %}">Regístrate aquí</a></p>
+      <p class="auth-note">Al ingresar aceptas el uso responsable de las imágenes del laboratorio.</p>
+    </section>
+  </div>
+</section>
+{% endblock %}

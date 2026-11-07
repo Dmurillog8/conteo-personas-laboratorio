@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Crear cuenta · LabCount{% endblock %}
+
+{% block public_content %}
+<section class="auth-page">
+  <div class="auth-card auth-card-wide">
+    <aside class="auth-visual">
+      <div class="auth-visual-top">
+        <span class="hero-badge small"><span class="pulse-dot"></span> Nueva cuenta</span>
+        <h2>Únete al monitoreo del laboratorio.</h2>
+        <p>Crea tu cuenta para iniciar sesiones de conteo y consultar el historial de ocupación.</p>
+      </div>
+      <ul class="auth-list">
+        <li><span class="check">✓</span> Panel en tiempo real con OpenCV</li>
+        <li><span class="check">✓</span> Fuentes de cámara, video y demostración</li>
+        <li><span class="check">✓</span> Reportes por laboratorio y periodo</li>
+      </ul>
+      <div class="auth-quote">
+        <span class="quote-mark">“</span>
+        <p>Un laboratorio seguro conoce su aforo y actúa antes de superar el límite.</p>
+      </div>
+    </aside>
+
+    <section class="auth-form-panel">
+      <span class="eyebrow">Comienza ahora</span>
+      <h1>Crear cuenta</h1>
+      <p class="auth-subtitle">Completa tus datos para acceder a LabCount.</p>
+
+      <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="form-alert">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.first_name.id_for_label }}">Nombres</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<span class="field-error">{{ form.first_name.errors|join:", " }}</span>{% endif %}
+          </div>
+          <div class="field">
+            <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<span class="field-error">{{ form.last_name.errors|join:", " }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+          {{ form.email }}
+          {% if form.email.errors %}<span class="field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+          {{ form.username }}
+          {% if form.username.errors %}<span class="field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+            <div class="password-wrap">
+              {{ form.password1 }}
+              <button type="button" class="password-toggle" data-toggle-password="{{ form.password1.id_for_label }}" aria-label="Mostrar contraseña">Ver</button>
+            </div>
+            {% if form.password1.errors %}<span class="field-error">{{ form.password1.errors|join:", " }}</span>{% endif %}
+          </div>
+          <div class="field">
+            <label for="{{ form.password2.id_for_label }}">Confirmar contraseña</label>
+            <div class="password-wrap">
+              {{ form.password2 }}
+              <button type="button" class="password-toggle" data-toggle-password="{{ form.password2.id_for_label }}" aria-label="Mostrar contraseña">Ver</button>
+            </div>
+            {% if form.password2.errors %}<span class="field-error">{{ form.password2.errors|join:", " }}</span>{% endif %}
+          </div>
+        </div>
+        <p class="field-hint">La contraseña debe tener al menos 8 caracteres y no ser completamente numérica.</p>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          Crear mi cuenta
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 5l7 7-7 7-1.4-1.4 4.6-4.6H4v-2h12.2L11.6 6.4 13 5Z"/></svg>
+        </button>
+      </form>
+
+      <p class="auth-switch">¿Ya tienes una cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión</a></p>
+    </section>
+  </div>
+</section>
+{% endblock %}

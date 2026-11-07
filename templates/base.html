@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LabCount: conteo de personas en el laboratorio con Django, OpenCV y PostgreSQL.">
+  <title>{% block title %}LabCount · Conteo de personas{% endblock %}</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% if user.is_authenticated %}app-body{% else %}public-body{% endif %}">
+{% if user.is_authenticated %}
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="{% url 'monitoring:dashboard' %}">
+        <span class="brand-mark">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="14" r="5.4" fill="none" stroke="currentColor" stroke-width="2.4"/>
+            <path d="M13 34c0-6 4-10 9-10s9 4 9 10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M5 22h6M33 22h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="22" cy="22" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>LabCount</strong>
+          <small>Django · OpenCV</small>
+        </span>
+      </a>
+
+      <nav class="side-nav" aria-label="Navegación principal">
+        <span class="nav-label">Monitoreo</span>
+        <a href="{% url 'monitoring:dashboard' %}" class="nav-link {% if request.resolver_match.namespace == 'monitoring' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg>
+          <span>Panel en vivo</span>
+        </a>
+        <a href="{% url 'monitoring:sessions' %}" class="nav-link {% if request.resolver_match.namespace == 'monitoring' and request.resolver_match.url_name == 'sessions' or request.resolver_match.namespace == 'monitoring' and request.resolver_match.url_name == 'session_detail' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v2H4V5Zm0 6h10v2H4v-2Zm0 6h16v2H4v-2Z"/></svg>
+          <span>Historial</span>
+        </a>
+        <a href="{% url 'reports:index' %}" class="nav-link {% if request.resolver_match.namespace == 'reports' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V9h4v11H5Zm5 0V4h4v16h-4Zm5 0v-7h4v7h-4Z"/></svg>
+          <span>Reportes</span>
+        </a>
+        {% if user.is_staff %}
+          <span class="nav-label">Administración</span>
+          <a href="{% url 'admin:index' %}" class="nav-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Zm0 2.2L18 7.6V12c0 3.8-2.4 6.2-6 7.2-3.6-1-6-3.4-6-7.2V7.6l6-2.4Z"/></svg>
+            <span>Administrador</span>
+          </a>
+        {% endif %}
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <span class="avatar">{{ user.first_name|default:user.username|first|upper }}{{ user.last_name|first|upper }}</span>
+          <span class="user-copy">
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            <small>{{ user.email|default:"Sesión activa" }}</small>
+          </span>
+        </div>
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="logout-button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17v-2h4V9h-4V7h4a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-4Zm-1.4-1.6L4.8 12l3.8-3.4 1.4 1.5-1.3 1.2H12v1.4H8.7l1.3 1.2-1.4 1.5Z"/></svg>
+            Cerrar sesión
+          </button>
+        </form>
+        <p class="sidebar-version">v1.0.0 · OpenCV {{ OPENCV_VERSION }}</p>
+      </div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <button class="menu-toggle" id="sidebarToggle" type="button" aria-label="Abrir menú">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-title">
+          <span class="eyebrow">{% block eyebrow %}Conteo de personas{% endblock %}</span>
+          <h1>{% block page_title %}Panel de control{% endblock %}</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="system-chip"><span class="dot"></span> PostgreSQL</span>
+          <span class="topbar-clock" id="topbarClock">--:--:--</span>
+        </div>
+      </header>
+
+      <main class="content">
+        {% include "partials/messages.html" %}
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="app-footer">
+        <span>LabCount · Construcción de Software · UNEMI</span>
+        <span>OpenCV {{ OPENCV_VERSION }} · Django · PostgreSQL</span>
+      </footer>
+    </div>
+  </div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+{% else %}
+  <header class="public-header">
+    <a class="brand brand-public" href="{% url 'core:landing' %}">
+      <span class="brand-mark">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="14" r="5.4" fill="none" stroke="currentColor" stroke-width="2.4"/>
+          <path d="M13 34c0-6 4-10 9-10s9 4 9 10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M5 22h6M33 22h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="22" cy="22" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/>
+        </svg>
+      </span>
+      <span class="brand-copy"><strong>LabCount</strong><small>Conteo inteligente</small></span>
+    </a>
+    <nav class="public-nav">
+      {% if request.resolver_match.url_name == 'login' %}
+        <span class="public-nav-text">¿No tienes cuenta?</span>
+        <a class="btn btn-sm btn-primary" href="{% url 'accounts:register' %}">Crear cuenta</a>
+      {% elif request.resolver_match.url_name == 'register' %}
+        <span class="public-nav-text">¿Ya tienes cuenta?</span>
+        <a class="btn btn-sm btn-secondary" href="{% url 'accounts:login' %}">Iniciar sesión</a>
+      {% else %}
+        <a class="public-nav-text link" href="{% url 'accounts:login' %}">Iniciar sesión</a>
+        <a class="btn btn-sm btn-primary" href="{% url 'accounts:register' %}">Crear cuenta</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main class="public-content">
+    {% include "partials/messages.html" %}
+    {% block public_content %}{% endblock %}
+  </main>
+  <footer class="public-footer">
+    <div class="brand brand-footer">
+      <span class="brand-mark small">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="14" r="5.4" fill="none" stroke="currentColor" stroke-width="2.4"/>
+          <path d="M13 34c0-6 4-10 9-10s9 4 9 10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-copy"><strong>LabCount</strong><small>Conteo de personas en el laboratorio</small></span>
+    </div>
+    <p>Proyecto académico · Django + OpenCV + PostgreSQL · <span id="footerYear"></span></p>
+  </footer>
+{% endif %}
+<script src="{% static 'js/app.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
