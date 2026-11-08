@@ -114,7 +114,15 @@ else:
             "HOST": os.getenv("DB_HOST", "127.0.0.1"),
             "PORT": os.getenv("DB_PORT", "5432"),
             "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
-            "OPTIONS": {"connect_timeout": 10},
+            # Fallo rápido: si PostgreSQL está caído, el sistema lo detecta
+            # en pocos segundos y sigue operando en modo degradado.
+            "OPTIONS": {
+                "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "5")),
+                "keepalives": 1,
+                "keepalives_idle": 30,
+                "keepalives_interval": 10,
+                "keepalives_count": 3,
+            },
         }
     }
 
@@ -168,7 +176,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 # ---------------------------------------------------------------------------
 # Parámetros del motor de conteo (OpenCV)
 # ---------------------------------------------------------------------------
-LABCOUNT_DEFAULT_DETECTOR = os.getenv("LABCOUNT_DEFAULT_DETECTOR", "hybrid")
+LABCOUNT_DEFAULT_DETECTOR = os.getenv("LABCOUNT_DEFAULT_DETECTOR", "dnn")
+# Modelo YOLO (ONNX) para el detector "dnn". Se descarga con scripts/download_models.py
+LABCOUNT_DNN_MODEL = os.getenv("LABCOUNT_DNN_MODEL", str(BASE_DIR / "models" / "yolov5n.onnx"))
+# Confianza mínima (0-1). Súbala si aparecen falsos positivos; bájela si no detecta.
+LABCOUNT_DNN_CONFIDENCE = float(os.getenv("LABCOUNT_DNN_CONFIDENCE", "0.45"))
 LABCOUNT_CAMERA_INDEX = int(os.getenv("LABCOUNT_CAMERA_INDEX", "0"))
 LABCOUNT_MAX_FRAME_WIDTH = int(os.getenv("LABCOUNT_MAX_FRAME_WIDTH", "960"))
 LABCOUNT_STREAM_FPS = max(5, int(os.getenv("LABCOUNT_STREAM_FPS", "16")))
@@ -177,6 +189,8 @@ LABCOUNT_SAMPLE_SECONDS = max(1, int(os.getenv("LABCOUNT_SAMPLE_SECONDS", "5")))
 LABCOUNT_LINE_ORIENTATION = os.getenv("LABCOUNT_LINE_ORIENTATION", "vertical")
 LABCOUNT_LINE_POSITION = float(os.getenv("LABCOUNT_LINE_POSITION", "0.50"))
 LABCOUNT_MAX_UPLOAD_MB = 250
+# Segundos que se intenta reconectar la cámara antes de cerrar la sesión.
+LABCOUNT_RECONNECT_SECONDS = int(os.getenv("LABCOUNT_RECONNECT_SECONDS", "30"))
 
 # ---------------------------------------------------------------------------
 # Logging

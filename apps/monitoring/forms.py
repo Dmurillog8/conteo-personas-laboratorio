@@ -37,7 +37,7 @@ class StartMonitoringForm(forms.Form):
     detection_mode = forms.ChoiceField(
         label="Método de detección",
         choices=MonitoringSession.DetectionMode.choices,
-        initial=MonitoringSession.DetectionMode.HYBRID,
+        initial=MonitoringSession.DetectionMode.DNN,
     )
     line_orientation = forms.ChoiceField(
         label="Orientación de la línea",

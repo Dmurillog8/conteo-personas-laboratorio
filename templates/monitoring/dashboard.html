@@ -36,11 +36,17 @@
 
   <section class="live-layout">
     <article class="card video-card">
-      <div class="video-shell">
+      <div class="video-shell" id="videoShell" title="Doble clic o tecla F para pantalla completa">
         <img id="liveStream" src="{% url 'monitoring:stream' %}" alt="Transmisión de video con conteo de personas" loading="eager">
         <div class="video-top-overlay">
           <span class="video-live"><span class="pulse-dot"></span> Cámara activa</span>
-          <span class="video-opencv">OpenCV {{ OPENCV_VERSION }}</span>
+          <span class="video-top-right">
+            <span class="video-opencv">OpenCV {{ OPENCV_VERSION }}</span>
+            <button type="button" class="video-fs-btn" id="fullscreenToggle" aria-label="Pantalla completa" title="Pantalla completa (F)">
+              <svg class="icon-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 4v-4h2v6h-6v-2h4Z"/></svg>
+              <svg class="icon-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h2v6H4V8h4V4Zm6 0h2v4h4v2h-6V4ZM4 14h6v6H8v-4H4v-2Zm10 0h6v2h-4v4h-2v-6Z"/></svg>
+            </button>
+          </span>
         </div>
         <div class="video-bottom-overlay">
           <span><span class="dot-cyan"></span> Línea virtual de conteo</span>
@@ -54,10 +60,14 @@
           </span>
           <div>
             <strong>{{ active_session.source_description }}</strong>
-            <span>{{ active_session.get_detection_mode_display }} · {{ stats.detector|default:"OpenCV" }}</span>
+            <span>{{ stats.detector|default:active_session.get_detection_mode_display }}</span>
           </div>
         </div>
         <div class="video-actions">
+          <button type="button" class="btn btn-secondary" data-fullscreen-toggle>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 4v-4h2v6h-6v-2h4Z"/></svg>
+            <span data-fullscreen-label>Pantalla completa</span>
+          </button>
           {% if stats.can_control %}
             <form method="post" action="{% url 'monitoring:snapshot' %}">
               {% csrf_token %}

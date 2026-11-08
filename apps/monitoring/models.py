@@ -32,6 +32,7 @@ class MonitoringSession(models.Model):
         DEMO = "demo", "Demostración"
 
     class DetectionMode(models.TextChoices):
+        DNN = "dnn", "Red neuronal YOLO (recomendado)"
         HOG = "hog", "Personas (HOG)"
         MOTION = "motion", "Movimiento (MOG2)"
         HYBRID = "hybrid", "Híbrido (HOG + movimiento)"
@@ -66,7 +67,7 @@ class MonitoringSession(models.Model):
         "método de detección",
         max_length=20,
         choices=DetectionMode.choices,
-        default=DetectionMode.HYBRID,
+        default=DetectionMode.DNN,
     )
     line_orientation = models.CharField(
         "orientación de la línea",

@@ -17,7 +17,7 @@ Motivos:
 
 | Archivo | Funciones OpenCV usadas |
 |---|---|
-| `services/detectors.py` | `cv2.HOGDescriptor`, `cv2.createBackgroundSubtractorMOG2`, `cv2.dnn.NMSBoxes`, `cv2.cvtColor`, `cv2.RETR_EXTERNAL`, `cv2.findContours` |
+| `services/detectors.py` | `cv2.dnn.readNetFromONNX` + `cv2.dnn.blobFromImage` (YOLO), `cv2.HOGDescriptor`, `cv2.createBackgroundSubtractorMOG2`, `cv2.dnn.NMSBoxes`, `cv2.cvtColor`, `cv2.RETR_EXTERNAL`, `cv2.findContours` |
 | `services/tracker.py` | `numpy` (asociación euclidiana) |
 | `services/counter.py` | `cv2.rectangle`, `cv2.putText`, `cv2.circle`, `cv2.line`, `cv2.addWeighted`, `cv2.getTextSize`, `cv2.FONT_HERSHEY_SIMPLEX` |
 | `services/manager.py` | `cv2.VideoCapture`, `cv2.imencode`, `cv2.resize`, `cv2.INTER_AREA/LINEAR` |
@@ -43,5 +43,27 @@ curl http://127.0.0.1:8000/health/                # opencv: 4.14.0
 
 - Vendorizar `opencv/opencv`: descartado (build complejo, no aporta).
 - `opencv-contrib-python`: no necesario (no se usan módulos contrib).
-- Modelos DNN (YOLO): fuera de alcance de esta entrega; listado en backlog
-  futuro (`JIRA_BOARD.md`).
+- Modelos DNN (YOLO): **implementado** como detector `dnn` (ver sección 6).
+
+## 6. Detector por red neuronal (recomendado)
+
+- Modelo: YOLOv5n exportado a ONNX (~4 MB, clase COCO `person`), en
+  `models/yolov5n.onnx`. Si falta: `python scripts/download_models.py`.
+- Se ejecuta con `cv2.dnn` (CPU), sin PyTorch ni GPU. ~40-80 ms por frame.
+- Entrada con *letterbox* 640×640 para no deformar a las personas.
+- Variables: `LABCOUNT_DNN_MODEL`, `LABCOUNT_DNN_CONFIDENCE` (0.45).
+- Si el modelo no existe, el sistema usa el detector híbrido automáticamente.
+
+### Mejoras de precisión del conteo
+
+- **Cajas contenidas**: se descartan cajas (cabeza, piernas) que quedan
+  dentro de la caja de una persona; antes una persona se contaba como 2-3.
+- **Fragmentos de movimiento (MOG2)**: se unen cabeza/torso/piernas en una
+  sola silueta.
+- **Seguimiento**: asociación por IoU + distancia proporcional al tamaño
+  de la persona; fusión de pistas duplicadas; las pistas no confirmadas se
+  descartan rápido y no suman visitantes únicos.
+- **Línea de conteo con histéresis**: zona muerta de ±3 % alrededor de la
+  línea; un cruce solo se cuenta al pasar de un lado firme al otro.
+- **Ocupación estable**: mediana de los últimos 5 ciclos de detección.
+- Solo se dibujan personas confirmadas (lo que se ve es lo que se cuenta).

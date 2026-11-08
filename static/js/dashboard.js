@@ -59,6 +59,73 @@
   if (!config || config.dataset.live !== "true") return;
 
   const statsUrl = config.dataset.statsUrl;
+
+  /* ------------------------------------------------------------------
+     Pantalla completa de la cámara
+     ------------------------------------------------------------------ */
+  const videoShell = $("#videoShell");
+  if (videoShell) {
+    const fsElement = () =>
+      document.fullscreenElement || document.webkitFullscreenElement || null;
+    const isFullscreen = () => fsElement() === videoShell;
+    const enter = () => {
+      const request = videoShell.requestFullscreen || videoShell.webkitRequestFullscreen;
+      if (request) {
+        const result = request.call(videoShell);
+        if (result && result.catch) result.catch(() => videoShell.classList.add("is-pseudo-fullscreen"));
+      } else {
+        // Navegadores sin API: se simula ocupando toda la ventana.
+        videoShell.classList.add("is-pseudo-fullscreen");
+        refreshFullscreen();
+      }
+    };
+    const exit = () => {
+      if (videoShell.classList.contains("is-pseudo-fullscreen")) {
+        videoShell.classList.remove("is-pseudo-fullscreen");
+        refreshFullscreen();
+        return;
+      }
+      const leave = document.exitFullscreen || document.webkitExitFullscreen;
+      if (leave && fsElement()) leave.call(document);
+    };
+    const active = () => isFullscreen() || videoShell.classList.contains("is-pseudo-fullscreen");
+    const toggle = () => (active() ? exit() : enter());
+
+    function refreshFullscreen() {
+      const on = active();
+      videoShell.classList.toggle("is-fullscreen", on);
+      document.body.classList.toggle("video-fullscreen-open", on);
+      document.querySelectorAll("[data-fullscreen-label]").forEach((label) => {
+        label.textContent = on ? "Salir de pantalla completa" : "Pantalla completa";
+      });
+      const button = $("#fullscreenToggle");
+      if (button) {
+        const text = on ? "Salir de pantalla completa (Esc)" : "Pantalla completa (F)";
+        button.setAttribute("aria-label", text);
+        button.title = text;
+      }
+    }
+
+    document.addEventListener("fullscreenchange", refreshFullscreen);
+    document.addEventListener("webkitfullscreenchange", refreshFullscreen);
+    document.querySelectorAll("[data-fullscreen-toggle], #fullscreenToggle").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        toggle();
+      });
+    });
+    videoShell.addEventListener("dblclick", toggle);
+    document.addEventListener("keydown", (event) => {
+      const tag = (event.target && event.target.tagName) || "";
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(tag) || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.key === "f" || event.key === "F") {
+        event.preventDefault();
+        toggle();
+      } else if (event.key === "Escape" && videoShell.classList.contains("is-pseudo-fullscreen")) {
+        exit();
+      }
+    });
+  }
   const chartCanvas = $("#liveChart");
   const chart = chartCanvas
     ? new window.LabCountChart(chartCanvas, {
@@ -135,7 +202,13 @@
       elements.status.style.color = statusColor;
     }
 
-    if (data.error) {
+    if (data.db_ok === false) {
+      setText(
+        elements.note,
+        "Base de datos no disponible: el video sigue en vivo, pero las muestras no se están guardando."
+      );
+      elements.note.style.color = "var(--warning)";
+    } else if (data.error) {
       setText(elements.note, `Error del procesador: ${data.error}`);
       elements.note.style.color = "var(--danger)";
     } else {

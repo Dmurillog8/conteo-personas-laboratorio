@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import platform
+import queue
 import threading
 import time
 from functools import lru_cache
@@ -18,7 +19,7 @@ from typing import Any
 import cv2
 import numpy as np
 from django.conf import settings
-from django.db import close_old_connections
+from django.db import OperationalError, close_old_connections
 from django.utils import timezone
 
 from apps.monitoring.models import CrossingEvent, MonitoringSession, OccupancySample
@@ -127,6 +128,12 @@ class StreamManager:
         self._latest_frame: np.ndarray | None = None
         self._stats: dict[str, Any] = {}
         self._fps = 0.0
+        # Persistencia desacoplada del hilo de video: si PostgreSQL se cae,
+        # el video sigue en vivo y los datos se guardan al recuperar la BD.
+        self._persist_queue: queue.Queue = queue.Queue(maxsize=256)
+        self._persist_thread: threading.Thread | None = None
+        self._db_ok = True
+        self._db_failures = 0
 
     # ------------------------------------------------------------------
     # Consultas
@@ -179,6 +186,7 @@ class StreamManager:
                     if self._capacity
                     else 0.0,
                     "has_frame": self._latest_jpeg is not None,
+                    "db_ok": self._db_ok,
                 }
             )
             return data
@@ -229,7 +237,12 @@ class StreamManager:
             return capture, None, frame
 
         # Cámara web
-        index = max(0, int(session.source_index))
+        capture, frame = self._open_webcam(max(0, int(session.source_index)))
+        return capture, None, frame
+
+    @staticmethod
+    def _open_webcam(index: int, rounds: int = 3):
+        """Abre la cámara probando los backends de Windows. Devuelve (captura, frame)."""
         backends: list[int] = []
         if platform.system().lower() == "windows":
             for name in ("CAP_DSHOW", "CAP_MSMF"):
@@ -242,7 +255,7 @@ class StreamManager:
         last_error = "No se encontró una cámara disponible."
         # Windows puede tener la cámara ocupada brevemente (otra app, arranque
         # del dispositivo): se reintenta en varias rondas antes de fallar.
-        for attempt in range(3):
+        for attempt in range(rounds):
             for backend in backends:
                 capture = cv2.VideoCapture(index, backend)
                 if not capture.isOpened():
@@ -256,17 +269,38 @@ class StreamManager:
                 for _ in range(20):
                     ok, frame = capture.read()
                     if ok and frame is not None:
-                        return capture, None, frame
+                        return capture, frame
                     time.sleep(0.05)
                 capture.release()
                 last_error = (
                     f"La cámara {index} se abrió pero no entregó imagen. "
                     "Cierre otras aplicaciones que la estén usando e intente de nuevo."
                 )
-            if attempt < 2:
+            if attempt < rounds - 1:
                 time.sleep(0.8)
 
         raise StreamSourceError(last_error)
+
+    def _reconnect_webcam(self, index: int, stop_event: threading.Event):
+        """Intenta reabrir la cámara durante ``LABCOUNT_RECONNECT_SECONDS``.
+
+        Mientras tanto el video muestra un aviso en lugar de cerrar la sesión.
+        """
+        timeout = float(getattr(settings, "LABCOUNT_RECONNECT_SECONDS", 30))
+        deadline = time.monotonic() + timeout
+        with self._lock:
+            self._latest_jpeg = placeholder_jpeg("Reconectando camara...")
+        attempt = 0
+        while not stop_event.is_set() and time.monotonic() < deadline:
+            attempt += 1
+            try:
+                capture, _ = self._open_webcam(index, rounds=1)
+                logger.info("Cámara %s reconectada (intento %s)", index, attempt)
+                return capture
+            except StreamSourceError as exc:
+                logger.warning("Reintento %s de reconexión de la cámara %s: %s", attempt, index, exc)
+                stop_event.wait(1.0)
+        return None
 
     # ------------------------------------------------------------------
     # Inicio / detención
@@ -299,6 +333,7 @@ class StreamManager:
             config = {
                 "session_id": session.pk,
                 "source_type": session.source_type,
+                "source_index": max(0, int(session.source_index)),
                 "loop_video": loop_video,
                 "source_label": session.source_description,
                 "laboratory": session.laboratory.name,
@@ -311,6 +346,12 @@ class StreamManager:
                 target=self._run,
                 args=(capture, demo_scene, counter, config, stop_event),
                 name=f"labcount-stream-{session.pk}",
+                daemon=True,
+            )
+            persist_thread = threading.Thread(
+                target=self._persistence_worker,
+                args=(session.pk,),
+                name=f"labcount-db-{session.pk}",
                 daemon=True,
             )
 
@@ -332,8 +373,14 @@ class StreamManager:
                 self._running = True
                 self._stop_event = stop_event
                 self._thread = thread
+                self._persist_thread = persist_thread
+                self._db_ok = True
+                self._db_failures = 0
 
+            # Cola nueva en cada sesión para no arrastrar trabajo anterior.
+            self._persist_queue = queue.Queue(maxsize=256)
             thread.start()
+            persist_thread.start()
             logger.info("Sesión %s iniciada con %s", session.pk, detector.label)
             return self.get_stats()
         except Exception:
@@ -349,6 +396,7 @@ class StreamManager:
     def stop(self, timeout: float = 5.0) -> None:
         with self._lock:
             thread = self._thread
+            persist_thread = self._persist_thread
             session_id = self._session_id
             self._stop_event.set()
 
@@ -363,7 +411,8 @@ class StreamManager:
             self._session_ended_at = self._session_ended_at or timezone.now()
 
         if session_id:
-            self._finalize_session(session_id, MonitoringSession.Status.STOPPED)
+            self._enqueue(("finalize", (MonitoringSession.Status.STOPPED, "")))
+        self._stop_persistence_worker(persist_thread)
         if still_alive:
             logger.warning("El hilo de la sesión %s no terminó en %.1fs", session_id, timeout)
 
@@ -403,12 +452,29 @@ class StreamManager:
                             time.sleep(0.05)
                             continue
                         consecutive_failures += 1
-                        if consecutive_failures <= 20:
+                        # Hasta ~3 s de fotogramas fallidos se toleran sin hacer nada
+                        # (ajustes de exposición, cámara ocupada un instante...).
+                        if consecutive_failures <= 60:
                             time.sleep(0.05)
                             continue
-                        raise StreamSourceError(
-                            "Se perdió la señal de la cámara. Verifique la conexión."
+                        logger.warning(
+                            "La cámara de la sesión %s dejó de entregar imagen; reconectando...",
+                            session_id,
                         )
+                        if capture is not None:
+                            capture.release()
+                        capture = self._reconnect_webcam(config["source_index"], stop_event)
+                        if capture is None:
+                            if stop_event.is_set():
+                                break
+                            raise StreamSourceError(
+                                "Se perdió la señal de la cámara y no se pudo reconectar. "
+                                "Verifique que ninguna otra aplicación la esté usando."
+                            )
+                        with self._lock:
+                            self._capture = capture
+                        consecutive_failures = 0
+                        continue
                 consecutive_failures = 0
                 frame = _resize_frame(frame)
 
@@ -427,10 +493,21 @@ class StreamManager:
                 now = time.perf_counter()
                 if now - last_sample_at >= sample_interval:
                     last_sample_at = now
-                    self._persist_sample(session_id, stats)
+                    self._enqueue(("sample", stats.as_dict()))
 
                 if crossings:
-                    self._persist_crossings(session_id, crossings)
+                    self._enqueue(
+                        (
+                            "crossings",
+                            [
+                                {
+                                    "direction": crossing.direction,
+                                    "track_id": crossing.track_id,
+                                }
+                                for crossing in crossings
+                            ],
+                        )
+                    )
 
                 elapsed = time.perf_counter() - started
                 time.sleep(max(0.001, frame_interval - elapsed))
@@ -445,20 +522,22 @@ class StreamManager:
             if capture is not None:
                 capture.release()
             if last_stats is not None:
-                self._persist_sample(session_id, last_stats)
+                self._enqueue(("sample", last_stats.as_dict()))
             if error_message:
                 with self._lock:
                     self._error = error_message
                     self._status = MonitoringSession.Status.ERROR
                     self._session_ended_at = timezone.now()
-                self._finalize_session(
-                    session_id, MonitoringSession.Status.ERROR, error_message
+                self._enqueue(
+                    ("finalize", (MonitoringSession.Status.ERROR, error_message))
                 )
             else:
                 with self._lock:
                     self._status = MonitoringSession.Status.STOPPED
                     self._session_ended_at = timezone.now()
-                self._finalize_session(session_id, MonitoringSession.Status.STOPPED)
+                self._enqueue(
+                    ("finalize", (MonitoringSession.Status.STOPPED, ""))
+                )
 
             with self._lock:
                 self._running = False
@@ -466,12 +545,73 @@ class StreamManager:
                 self._capture = None
                 if self._stats:
                     self._stats["current"] = 0
+            # Cierra el hilo de base de datos cuando termine lo pendiente.
+            self._enqueue(("shutdown", None))
             logger.info("Hilo de video finalizado para la sesión %s", session_id)
 
     # ------------------------------------------------------------------
-    # Persistencia
+    # Persistencia (hilo independiente del video)
     # ------------------------------------------------------------------
-    def _persist_sample(self, session_id: int, stats: CountingStats) -> None:
+    def _enqueue(self, item: tuple[str, Any]) -> None:
+        """Encola una escritura sin bloquear el hilo de video."""
+        try:
+            self._persist_queue.put_nowait(item)
+        except queue.Full:  # pragma: no cover - solo con BD muy lenta
+            try:
+                self._persist_queue.get_nowait()
+                self._persist_queue.put_nowait(item)
+            except queue.Empty:
+                pass
+
+    def _stop_persistence_worker(self, thread: threading.Thread | None) -> None:
+        if thread is None:
+            return
+        self._enqueue(("shutdown", None))
+        thread.join(timeout=3)
+        if thread.is_alive():  # pragma: no cover - caso extremo
+            logger.warning("El hilo de persistencia no terminó a tiempo.")
+
+    def _persistence_worker(self, session_id: int) -> None:
+        """Consume la cola y escribe en PostgreSQL con reintentos."""
+        while True:
+            item = self._persist_queue.get()
+            if item is None:
+                break
+            kind, payload = item
+            try:
+                if kind == "sample":
+                    self._write_sample(session_id, payload)
+                elif kind == "crossings":
+                    self._write_crossings(session_id, payload)
+                elif kind == "finalize":
+                    status, error = payload
+                    self._write_finalize(session_id, status, error)
+                elif kind == "shutdown":
+                    break
+            except Exception:  # pragma: no cover - red de seguridad
+                logger.exception("Error inesperado guardando datos de la sesión %s", session_id)
+
+    def _mark_db_ok(self) -> None:
+        with self._lock:
+            if not self._db_ok:
+                logger.info("La base de datos volvió a estar disponible.")
+            self._db_ok = True
+            self._db_failures = 0
+
+    def _mark_db_error(self, exc: Exception) -> None:
+        with self._lock:
+            self._db_failures += 1
+            failures = self._db_failures
+            self._db_ok = False
+        if failures == 1:
+            logger.warning(
+                "Base de datos no disponible (%s). El video continúa y se reintentará.",
+                exc,
+            )
+        elif failures % 6 == 0:
+            logger.warning("La base de datos sigue no disponible (%s intentos).", failures)
+
+    def _write_sample(self, session_id: int, stats: dict[str, Any]) -> None:
         close_old_connections()
         try:
             session = MonitoringSession.objects.get(pk=session_id)
@@ -479,16 +619,18 @@ class StreamManager:
                 return
             OccupancySample.objects.create(
                 session=session,
-                occupancy=stats.current,
-                entries=stats.entries,
-                exits=stats.exits,
-                fps=round(stats.fps, 2),
+                occupancy=int(stats.get("current", 0)),
+                entries=int(stats.get("entries", 0)),
+                exits=int(stats.get("exits", 0)),
+                fps=round(float(stats.get("fps", 0)), 2),
             )
-            session.current_occupancy = stats.current
-            session.peak_occupancy = max(session.peak_occupancy, stats.current)
-            session.total_entries = stats.entries
-            session.total_exits = stats.exits
-            session.unique_visitors = stats.unique
+            session.current_occupancy = int(stats.get("current", 0))
+            session.peak_occupancy = max(
+                session.peak_occupancy, int(stats.get("current", 0))
+            )
+            session.total_entries = int(stats.get("entries", 0))
+            session.total_exits = int(stats.get("exits", 0))
+            session.unique_visitors = int(stats.get("unique", 0))
             session.save(
                 update_fields=[
                     "current_occupancy",
@@ -498,14 +640,17 @@ class StreamManager:
                     "unique_visitors",
                 ]
             )
+            self._mark_db_ok()
         except MonitoringSession.DoesNotExist:
             logger.warning("La sesión %s fue eliminada mientras estaba en curso", session_id)
+        except OperationalError as exc:
+            self._mark_db_error(exc)
         except Exception as exc:  # pragma: no cover - depende de la BD
             logger.exception("No se pudo guardar la muestra de la sesión %s: %s", session_id, exc)
         finally:
             close_old_connections()
 
-    def _persist_crossings(self, session_id: int, crossings) -> None:
+    def _write_crossings(self, session_id: int, crossings: list[dict[str, Any]]) -> None:
         close_old_connections()
         try:
             session = MonitoringSession.objects.get(pk=session_id)
@@ -516,19 +661,22 @@ class StreamManager:
                 [
                     CrossingEvent(
                         session=session,
-                        direction=crossing.direction,
-                        track_id=crossing.track_id,
+                        direction=crossing["direction"],
+                        track_id=crossing["track_id"],
                         occurred_at=now,
                     )
                     for crossing in crossings
                 ]
             )
+            self._mark_db_ok()
+        except OperationalError as exc:
+            self._mark_db_error(exc)
         except Exception as exc:  # pragma: no cover
             logger.exception("No se pudieron guardar cruces de la sesión %s: %s", session_id, exc)
         finally:
             close_old_connections()
 
-    def _finalize_session(self, session_id: int, status: str, error: str = "") -> None:
+    def _write_finalize(self, session_id: int, status: str, error: str = "") -> None:
         close_old_connections()
         try:
             session = MonitoringSession.objects.get(pk=session_id)
@@ -542,8 +690,11 @@ class StreamManager:
             session.save(
                 update_fields=["status", "ended_at", "current_occupancy", "last_error"]
             )
+            self._mark_db_ok()
         except MonitoringSession.DoesNotExist:
             pass
+        except OperationalError as exc:
+            self._mark_db_error(exc)
         except Exception as exc:  # pragma: no cover
             logger.exception("No se pudo finalizar la sesión %s: %s", session_id, exc)
         finally:
