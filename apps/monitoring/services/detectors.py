@@ -191,8 +191,10 @@ class DnnPersonDetector(BaseDetector):
                 "Ejecute: python scripts/download_models.py"
             )
         try:
-            self._net = cv2.dnn.readNetFromONNX(str(path))
-        except cv2.error as exc:
+            # Python abre rutas Unicode de Windows; OpenCV recibe los bytes del modelo.
+            model_bytes = np.frombuffer(path.read_bytes(), dtype=np.uint8)
+            self._net = cv2.dnn.readNetFromONNX(model_bytes)
+        except (OSError, cv2.error) as exc:
             raise DetectorUnavailable(f"OpenCV no pudo cargar el modelo: {exc}") from exc
         try:
             self._net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)

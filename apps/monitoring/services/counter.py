@@ -325,7 +325,7 @@ class PeopleCounter:
 
         cv2.putText(
             frame,
-            "PERSONAS EN EL LABORATORIO",
+            "PERSONAS VISIBLES EN CAMARA",
             (32, 42),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.46,
@@ -365,7 +365,7 @@ class PeopleCounter:
         )
         cv2.putText(
             frame,
-            f"Unicos: {stats.unique}  |  {stats.fps:4.1f} FPS",
+            f"IDs: {stats.unique}  |  {stats.fps:4.1f} FPS",
             (272, 66),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.45,

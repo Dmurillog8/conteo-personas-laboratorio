@@ -1,70 +1,25 @@
-# Roles y reglas de trabajo · LabCount
+# Organización del equipo — LabCount
 
-Proyecto: **Conteo de personas en el laboratorio** (guía G003-S12).
+Tema: **Conteo de personas en el laboratorio**. Guía G003-S12, grupo de cinco integrantes.
+Nombres y roles proporcionados por el equipo; responsabilidades adaptadas al tema. La asignación no constituye evidencia de trabajo ya realizado.
 
-## 1. Roles del equipo
+| Integrante | Rol | Responsabilidades y entregables |
+|---|---|---|
+| Murillo García Darlyn Joshua | Líder | Coordinar al equipo; administrar Jira y el archivo compartido de bocetos; priorizar actividades; revisar la estimación del esfuerzo; coordinar revisión y entrega del repositorio, PDF y video. |
+| Crespo Ayala Billy Dilson | Desarrollador 1 | Diseñar el acceso/login; revisar registro, autenticación e interfaz web; aportar riesgos de codificación; participar en las reglas y gestionar sus tareas en Jira. |
+| Torres Morales Deyvi Matheus | Desarrollador 2 | Diseñar el panel de conteo; revisar integración Django–OpenCV, cámara, detección, seguimiento y conteo; aportar riesgos de integración; gestionar sus tareas en Jira. |
+| Román Gamarra Ruth Noemi | Documentadora | Redactar roles y reglas; exportar bocetos; documentar riesgos de configuración; consolidar matriz, evidencias e informe en la plantilla del docente; gestionar sus tareas en Jira. |
+| Patiño Suárez Jorge Alfredo | QA | Diseñar el boceto del historial/resultados; preparar y ejecutar casos de prueba; verificar resultados y riesgos de calidad; apoyar la configuración de Jira y comprobar estados reales de tareas. |
 
-| Rol | Responsabilidades |
-|---|---|
-| **Product Owner (PO)** | Define alcance, prioriza historias, valida entregables contra la guía. |
-| **Scrum Master** | Facilita ceremonias, elimina bloqueos, cuida el tablero Jira. |
-| **Tech Lead / Arquitecto** | Decisiones de stack (Django + OpenCV + PostgreSQL), revisión de PR. |
-| **Backend Developer** | Modelos, vistas, servicios (detector, tracker, contador, manager). |
-| **Frontend Developer** | Plantillas, CSS, JS, gráficas Canvas, UX responsive. |
-| **QA / Tester** | Plan de pruebas, ejecución de suite, validación manual end-to-end. |
-| **DevOps** | Docker Compose (PostgreSQL), variables de entorno, despliegue. |
-| **Documentador** | README, manuales, matriz de riesgos, trazabilidad. |
+## Reglas de trabajo colaborativo
 
-En un equipo pequeño una persona puede cubrir varios roles; lo importante es
-que cada responsabilidad tenga dueño.
+1. Cada tarea tendrá un responsable, criterio de aceptación y evidencia en Jira; su estado reflejará el trabajo real.
+2. Antes de editar, sincronizar el repositorio; trabajar en una rama propia y solicitar revisión de otro integrante antes de integrar cambios.
+3. Comunicar bloqueos y cambios de alcance al líder el mismo día; registrar las decisiones compartidas en Jira o documentación.
+4. Comprobar los cambios con las pruebas aplicables y explicar su resultado en la revisión; no declarar pruebas aprobadas sin ejecutarlas.
+5. Mantener documentación, bocetos y manual acordes con la aplicación; Ruth consolida los aportes y cada autor revisa su contenido.
+6. No subir contraseñas, `.env`, entornos virtuales ni datos personales; compartir únicamente ejemplos y evidencias autorizadas.
+7. Revisar conjuntamente los entregables antes del plazo de la plataforma: PDF, enlaces accesibles, video de hasta tres minutos y repositorio reproducible.
+8. Todos participarán en la práctica y exposición; reconocer los materiales y código de base utilizados y explicar los aportes propios.
 
-## 2. Reglas de trabajo
-
-### 2.1 Código
-
-1. **Rama principal protegida**: `main` solo recibe cambios vía Pull Request.
-2. **Convención de commits**: `tipo(alcance): descripción` (ej.
-   `feat(monitoring): agregar snapshot`). Tipos: `feat`, `fix`, `docs`,
-   `test`, `refactor`, `chore`, `style`.
-3. **Sin secretos en el repo**: `.env` está en `.gitignore`; solo se
-   versiona `.env.example`.
-4. **Sin entorno virtual**: `.venv/` está ignorado; cada desarrollador crea
-   el suyo localmente.
-5. **Sin archivos generados**: `media/`, `staticfiles/`, logs y `db.sqlite3`
-   no se versionan.
-6. **Estilo**: PEP 8 para Python; nombres descriptivos en español para
-   dominio (laboratorio, sesión, muestra). Inglés solo para identificadores
-   técnicos de Django/OpenCV.
-7. **Dependencias**: toda nueva dependencia se agrega a `requirements.txt`
-   con versión fijada.
-8. **Migraciones**: cada cambio de modelo incluye su migración y se revisa
-   en el PR.
-
-### 2.2 Calidad
-
-9. **Pruebas obligatorias**: toda funcionalidad nueva incluye pruebas; la
-   suite (`python manage.py test`) debe quedar en verde antes de mergear.
-10. **`python manage.py check`** debe pasar sin errores.
-11. **Cobertura mínima objetivo**: 70 % en servicios de conteo.
-12. **Revisión de código**: al menos un aprobador distinto del autor.
-
-### 2.3 Proceso (Scrum)
-
-13. Sprints de 1 semana; daily de 15 min.
-14. Definition of Done: código + pruebas + docs + PR aprobado + demo funcional.
-15. El tablero Jira es la fuente de verdad del estado (`docs/JIRA_BOARD.md`).
-
-### 2.4 Seguridad
-
-16. Contraseñas validadas por los validadores estándar de Django (mín. 8
-    caracteres).
-17. Sesiones y CSRF activos; `XFrameOptionsMiddleware` habilitado.
-18. En producción: `DEBUG=False`, `SECRET_KEY` seguro, HTTPS y hosts
-    configurados.
-19. Las sesiones de monitoreo son propiedad de su creador (staff ve todo).
-
-### 2.5 Comunicación
-
-20. Decisiones de arquitectura se documentan en `docs/ARCHITECTURE.md`.
-21. Bloqueos se reportan el mismo día en el daily.
-22. Los cambios de alcance se acuerdan con el PO y se reflejan en Jira.
+La protección de ramas y los permisos de Jira deben configurarse y verificarse en los servicios reales; este documento no los activa.

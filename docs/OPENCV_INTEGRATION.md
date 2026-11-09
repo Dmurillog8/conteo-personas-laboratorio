@@ -18,7 +18,7 @@ Motivos:
 | Archivo | Funciones OpenCV usadas |
 |---|---|
 | `services/detectors.py` | `cv2.dnn.readNetFromONNX` + `cv2.dnn.blobFromImage` (YOLO), `cv2.HOGDescriptor`, `cv2.createBackgroundSubtractorMOG2`, `cv2.dnn.NMSBoxes`, `cv2.cvtColor`, `cv2.RETR_EXTERNAL`, `cv2.findContours` |
-| `services/tracker.py` | `numpy` (asociación euclidiana) |
+| `services/tracker.py` | `numpy` (IoU y distancia normalizada; no requiere cv2 en este archivo) |
 | `services/counter.py` | `cv2.rectangle`, `cv2.putText`, `cv2.circle`, `cv2.line`, `cv2.addWeighted`, `cv2.getTextSize`, `cv2.FONT_HERSHEY_SIMPLEX` |
 | `services/manager.py` | `cv2.VideoCapture`, `cv2.imencode`, `cv2.resize`, `cv2.INTER_AREA/LINEAR` |
 | `services/demo.py` | `cv2` para dibujar la escena sintética |
@@ -37,7 +37,7 @@ curl http://127.0.0.1:8000/health/                # opencv: 4.14.0
 - Los frames se redimensionan a `LABCOUNT_MAX_FRAME_WIDTH` (960 px).
 - La detección se ejecuta cada `LABCOUNT_DETECT_EVERY` frames (2 por
   defecto) para mantener FPS.
-- El stream se codifica a JPEG calidad 82 y se sirve a 25 FPS máx.
+- El stream se codifica a JPEG calidad 82 y su ritmo depende de `LABCOUNT_STREAM_FPS` y del tiempo real de procesamiento.
 
 ## 5. Alternativas consideradas
 
@@ -49,7 +49,7 @@ curl http://127.0.0.1:8000/health/                # opencv: 4.14.0
 
 - Modelo: YOLOv5n exportado a ONNX (~4 MB, clase COCO `person`), en
   `models/yolov5n.onnx`. Si falta: `python scripts/download_models.py`.
-- Se ejecuta con `cv2.dnn` (CPU), sin PyTorch ni GPU. ~40-80 ms por frame.
+- Se ejecuta con `cv2.dnn` (CPU), sin PyTorch ni GPU. El tiempo por frame depende del equipo; medirlo en la demostración real.
 - Entrada con *letterbox* 640×640 para no deformar a las personas.
 - Variables: `LABCOUNT_DNN_MODEL`, `LABCOUNT_DNN_CONFIDENCE` (0.45).
 - Si el modelo no existe, el sistema usa el detector híbrido automáticamente.
@@ -67,3 +67,8 @@ curl http://127.0.0.1:8000/health/                # opencv: 4.14.0
   línea; un cruce solo se cuenta al pasar de un lado firme al otro.
 - **Ocupación estable**: mediana de los últimos 5 ciclos de detección.
 - Solo se dibujan personas confirmadas (lo que se ve es lo que se cuenta).
+## 7. Rutas con tildes en Windows
+
+El modelo se abre con `Path.read_bytes()` y se entrega como buffer a `cv2.dnn.readNetFromONNX`. Esto evita el fallo observado al pasar directamente la ruta «CONSTRUCCIÓN DE SOFTWARE». Se añadió una prueba que carga y ejecuta el modelo desde una ruta Unicode y otra para archivos corruptos. Un modelo presente pero ilegible ahora falla la prueba, en lugar de quedar omitido.
+
+Referencia técnica: https://docs.opencv.org/4.8.0/d6/d0f/group__dnn.html (sobrecarga readNetFromONNX con buffer).

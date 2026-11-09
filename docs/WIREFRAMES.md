@@ -1,89 +1,23 @@
-# Bocetos de interfaz (Wireframes) · LabCount
+# Tres bocetos — Conteo de personas en el laboratorio
 
-Tres pantallas principales, descritas en texto/ASCII. La UI real usa el
-design system definido en `static/css/app.css` (tema oscuro, acento cian).
+Bocetos de diseño, no capturas de ejecución. Representan las pantallas del tema elegido. Se incluyen como SVG editables y PNG para insertar en el informe. Las cifras ilustrativas no son resultados de prueba.
 
-## 1. Landing / portada (`templates/core/landing.html`)
+## 1. Acceso / login
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  [LabCount]                                    [Iniciar sesión] [Registrarse] │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│   Conteo de personas en el laboratorio                       │
-│   Django + OpenCV + PostgreSQL · Tiempo real                 │
-│                                                              │
-│   [ Comenzar ]   [ Ver documentación ]                       │
-│                                                              │
-│   ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐            │
-│   │ Video  │  │ Conteo │  │ Hist.  │  │ Report │            │
-│   │ en vivo│  │ líneas │  │ sesion │  │  CSV   │            │
-│   └────────┘  └────────┘  └────────┘  └────────┘            │
-│                                                              │
-│   Stack: Django 5.2 · OpenCV 4.14 · PostgreSQL 16            │
-└──────────────────────────────────────────────────────────────┘
-```
+![Boceto de acceso](bocetos/01-acceso.png)
 
-Elementos clave: hero con CTA, tarjetas de capacidades, pie con stack.
-Visible sin autenticación; usuarios autenticados son redirigidos al panel.
+[SVG editable](bocetos/01-acceso.svg). Responsable: Billy Dilson. Usuario, contraseña, mensaje de error, botón de acceso y enlace al registro. Corresponde a `templates/accounts/login.html`.
 
-## 2. Panel de monitoreo (`templates/monitoring/dashboard.html`)
+## 2. Panel de conteo
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  [LabCount]  Panel   Sesiones   Reportes        [usuario] [Salir]   │
-├─────────────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────────────┐  ┌────────────────────────────┐  │
-│  │                              │  │ Iniciar monitoreo          │  │
-│  │   VIDEO EN VIVO (MJPEG)      │  │ Fuente: [○Cam][○Video]     │  │
-│  │   con anotaciones OpenCV     │  │   [○Demo]                  │  │
-│  │   (cajas, trayectorias, HUD) │  │ Método: [HOG|MOG2|Híbrido] │  │
-│  │                              │  │ Línea: [Vert|Horiz] pos 0.5│  │
-│  │                              │  │ [ Iniciar ] [ Capturar ]   │  │
-│  └──────────────────────────────┘  │ [ Finalizar ]              │  │
-│  ┌─ KPIs ──────────────────────┐  └────────────────────────────┘  │
-│  │ En lab: 05  Entradas: 12    │  ┌────────────────────────────┐  │
-│  │ Salidas: 7  Únicos: 9       │  │ Gráfica de ocupación       │  │
-│  │ Pico: 8     FPS: 15.2      │  │ (Canvas, últimos 90 muestr.)│  │
-│  └─────────────────────────────┘  └────────────────────────────┘  │
-│  Sesiones recientes (tabla)                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Boceto del panel](bocetos/02-panel.png)
 
-Elementos clave: video MJPEG a la izquierda, formulario de control a la
-derecha, KPIs, gráfica Canvas, tabla de sesiones recientes. Polling a
-`/monitoring/api/stats/` cada 2 s.
+[SVG editable](bocetos/02-panel.svg). Responsable: Deyvi Matheus. Fuente cámara/archivo/demo, método de detección, laboratorio, orientación/posición de línea; video con cajas y línea, métricas, gráfica y controles iniciar/capturar/finalizar. Corresponde a `templates/monitoring/dashboard.html`.
 
-## 3. Historial de sesiones (`templates/monitoring/sessions.html` + detalle)
+## 3. Historial y resultados
 
-Listado:
+![Boceto del historial](bocetos/03-historial.png)
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  Historial de sesiones                                       │
-│  Filtros: [estado ▾]  [buscar...]   [Exportar CSV]           │
-├──────────────────────────────────────────────────────────────┤
-│  ID │ Laboratorio │ Fuente │ Inicio │ Entradas │ Salidas │ … │
-│  12 │ Lab P       │ Demo   │ 14:02  │ 5        │ 2       │ … │
-│  ...                                                         │
-│  Paginación: ◀ 1 2 3 ▶                                      │
-└──────────────────────────────────────────────────────────────┘
-```
+[SVG editable](bocetos/03-historial.svg). Responsable: Jorge Alfredo. Filtros de estado y búsqueda, sesiones, fecha/fuente, entradas/salidas, paginación, acceso al detalle con gráfica/capturas y exportación. Corresponde a `templates/monitoring/sessions.html` y `session_detail.html`.
 
-Detalle (`session_detail.html`):
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  Sesión #12 · Lab P · Demo · Finalizada                     │
-│  KPIs: entradas, salidas, únicos, pico, duración             │
-├──────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────┐  ┌─────────────────────────────┐  │
-│  │ Gráfica de ocupación │  │ Capturas (thumbnails)       │  │
-│  │ (Canvas)             │  │                             │  │
-│  └──────────────────────┘  └─────────────────────────────┘  │
-│  Eventos de cruce (tabla) · Exportar CSV de la sesión       │
-└──────────────────────────────────────────────────────────────┘
-```
-
-Reportes (`templates/reports/index.html`): resumen agregado + accesos a
-exportación CSV de sesiones y de una sesión específica.
+Ruth Noemi consolida las imágenes y descripciones en el PDF. La rúbrica usa ejemplos de biblioteca: consultar al docente la equivalencia con estas pantallas del tema permitido. Estos bocetos no crean un archivo en Figma; si el equipo lo utiliza, debe incorporar allí el diseño y su enlace real.

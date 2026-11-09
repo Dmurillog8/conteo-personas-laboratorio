@@ -31,7 +31,6 @@
       this.data = [];
       this.padding = { top: 22, right: 18, bottom: 30, left: 40 };
       this._resize = this._resize.bind(this);
-      this._draw = this._draw.bind(this);
 
       if (window.ResizeObserver) {
         this.observer = new ResizeObserver(this._resize);

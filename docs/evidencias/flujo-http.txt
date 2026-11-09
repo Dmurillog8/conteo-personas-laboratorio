@@ -1,0 +1,12 @@
+Validación local 2026-11-09. Fuente sintética; no demuestra precisión con personas reales.
+Inicio de sesión HTTP: OK
+Demo sintética iniciada: sesión 1; running=True
+Frame JPEG recibido: 60063 bytes
+Transmisión MJPEG: cabecera y frame recibidos
+Solicitud de captura: OK
+Finalización: running=False
+/monitoring/sessions/: HTTP 200; 7697 bytes
+/monitoring/sessions/1/: HTTP 200; 10546 bytes
+/reports/: HTTP 200; 18105 bytes
+/reports/export/sessions/: HTTP 200; 279 bytes
+/reports/export/session/1/: HTTP 200; 361 bytes

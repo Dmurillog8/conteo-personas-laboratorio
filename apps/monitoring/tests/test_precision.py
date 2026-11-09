@@ -5,6 +5,9 @@ Casos observados en pruebas reales con cámara web:
 * una persona parada sobre la línea sumaba entradas/salidas repetidas.
 """
 
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
 import numpy as np
 from django.test import SimpleTestCase
 
@@ -12,6 +15,7 @@ from apps.monitoring.services.counter import PeopleCounter
 from apps.monitoring.services.detectors import (
     DetectorUnavailable,
     DnnPersonDetector,
+    default_model_path,
     merge_fragments,
     suppress_contained,
 )
@@ -112,10 +116,10 @@ class OnePersonTests(SimpleTestCase):
 
 class DnnDetectorTests(SimpleTestCase):
     def _detector(self):
-        try:
-            return DnnPersonDetector()
-        except DetectorUnavailable:
+        if not default_model_path().exists():
             self.skipTest("Modelo YOLO no descargado (python scripts/download_models.py)")
+        # Un archivo presente pero ilegible/corrupto debe fallar, no ocultarse como omitido.
+        return DnnPersonDetector()
 
     def test_empty_frame_has_no_people(self):
         detector = self._detector()
@@ -130,3 +134,18 @@ class DnnDetectorTests(SimpleTestCase):
             self.assertGreaterEqual(y, 0)
             self.assertLessEqual(x + w, 640)
             self.assertLessEqual(y + h, 360)
+
+    def test_model_loads_and_runs_from_unicode_path(self):
+        self._detector()
+        with TemporaryDirectory(prefix="labcount-construcción-") as folder:
+            path = Path(folder) / "detección-personas.onnx"
+            path.write_bytes(default_model_path().read_bytes())
+            detector = DnnPersonDetector(model_path=path)
+            self.assertEqual(detector.detect(_frame()), [])
+
+    def test_corrupt_model_reports_unavailable(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / "invalid.onnx"
+            path.write_bytes(b"not an ONNX model")
+            with self.assertRaises(DetectorUnavailable):
+                DnnPersonDetector(model_path=path)

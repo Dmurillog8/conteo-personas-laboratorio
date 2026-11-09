@@ -1,0 +1,105 @@
+Creating test database for alias 'default' ('test_conteo_lab')...
+
+Found 62 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: humanize, messages, reports, staticfiles
+  Apply all migrations: admin, auth, contenttypes, core, monitoring, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying core.0001_initial... OK
+  Applying core.0002_seed_laboratory... OK
+  Applying monitoring.0001_initial... OK
+  Applying monitoring.0002_detection_mode_dnn... OK
+test_login_page_renders (apps.accounts.tests.AccountsTests.test_login_page_renders) ... ok
+test_login_with_valid_credentials (apps.accounts.tests.AccountsTests.test_login_with_valid_credentials) ... ok
+test_logout_requires_post_and_redirects (apps.accounts.tests.AccountsTests.test_logout_requires_post_and_redirects) ... ok
+test_register_creates_user_and_logs_in (apps.accounts.tests.AccountsTests.test_register_creates_user_and_logs_in) ... ok
+test_register_rejects_duplicate_email (apps.accounts.tests.AccountsTests.test_register_rejects_duplicate_email) ... ok
+test_default_laboratory_seeded (apps.core.tests.CoreTests.test_default_laboratory_seeded) ... ok
+test_health_endpoint_reports_database_and_opencv (apps.core.tests.CoreTests.test_health_endpoint_reports_database_and_opencv) ... ok
+test_landing_is_public (apps.core.tests.CoreTests.test_landing_is_public) ... ok
+test_landing_redirects_authenticated_user (apps.core.tests.CoreTests.test_landing_redirects_authenticated_user) ... ok
+test_capacity_and_running_properties (apps.monitoring.tests.test_models.MonitoringSessionModelTests.test_capacity_and_running_properties) ... ok
+test_duration_and_percentages (apps.monitoring.tests.test_models.MonitoringSessionModelTests.test_duration_and_percentages) ... ok
+test_source_description (apps.monitoring.tests.test_models.MonitoringSessionModelTests.test_source_description) ... ok
+test_visible_queryset_filters_by_owner (apps.monitoring.tests.test_models.MonitoringSessionModelTests.test_visible_queryset_filters_by_owner) ... ok
+test_cannot_start_second_session (apps.monitoring.tests.test_views.MonitoringViewTests.test_cannot_start_second_session) ... ok
+test_cannot_start_video_without_file (apps.monitoring.tests.test_views.MonitoringViewTests.test_cannot_start_video_without_file) ... ok
+test_dashboard_renders_start_form (apps.monitoring.tests.test_views.MonitoringViewTests.test_dashboard_renders_start_form) ... ok
+test_dashboard_requires_login (apps.monitoring.tests.test_views.MonitoringViewTests.test_dashboard_requires_login) ... ok
+test_health_endpoint (apps.monitoring.tests.test_views.MonitoringViewTests.test_health_endpoint) ... ok
+test_session_detail_is_private (apps.monitoring.tests.test_views.MonitoringViewTests.test_session_detail_is_private) ... [2026-11-09 12:52:57,772] WARNING django.request: Not Found: /monitoring/sessions/6/
+ok
+test_session_detail_owner (apps.monitoring.tests.test_views.MonitoringViewTests.test_session_detail_owner) ... ok
+test_session_list_and_filters (apps.monitoring.tests.test_views.MonitoringViewTests.test_session_list_and_filters) ... ok
+test_start_demo_session (apps.monitoring.tests.test_views.MonitoringViewTests.test_start_demo_session) ... ok
+test_stats_api (apps.monitoring.tests.test_views.MonitoringViewTests.test_stats_api) ... ok
+test_stop_without_active_session (apps.monitoring.tests.test_views.MonitoringViewTests.test_stop_without_active_session) ... ok
+test_stream_requires_login (apps.monitoring.tests.test_views.MonitoringViewTests.test_stream_requires_login) ... ok
+test_export_other_user_session_forbidden (apps.reports.tests.ReportsTests.test_export_other_user_session_forbidden) ... [2026-11-09 12:53:01,668] WARNING django.request: Not Found: /reports/export/session/10/
+ok
+test_export_session_csv (apps.reports.tests.ReportsTests.test_export_session_csv) ... ok
+test_export_sessions_csv (apps.reports.tests.ReportsTests.test_export_sessions_csv) ... ok
+test_report_page (apps.reports.tests.ReportsTests.test_report_page) ... ok
+test_report_period_parameter (apps.reports.tests.ReportsTests.test_report_period_parameter) ... ok
+test_annotated_frame_keeps_dimensions (apps.monitoring.tests.test_counter.CounterTests.test_annotated_frame_keeps_dimensions) ... ok
+test_counts_entry_crossing_vertical_line (apps.monitoring.tests.test_counter.CounterTests.test_counts_entry_crossing_vertical_line) ... ok
+test_counts_exit_crossing_vertical_line (apps.monitoring.tests.test_counter.CounterTests.test_counts_exit_crossing_vertical_line) ... ok
+test_does_not_count_the_same_crossing_twice (apps.monitoring.tests.test_counter.CounterTests.test_does_not_count_the_same_crossing_twice) ... ok
+test_horizontal_line_direction (apps.monitoring.tests.test_counter.CounterTests.test_horizontal_line_direction) ... ok
+test_line_position_is_clamped (apps.monitoring.tests.test_counter.CounterTests.test_line_position_is_clamped) ... ok
+test_occupancy_returns_to_zero_after_leaving (apps.monitoring.tests.test_counter.CounterTests.test_occupancy_returns_to_zero_after_leaving) ... ok
+test_demo_counter_detects_and_tracks_people (apps.monitoring.tests.test_demo_and_detectors.DemoTests.test_demo_counter_detects_and_tracks_people) ... ok
+test_demo_detector_returns_scene_boxes (apps.monitoring.tests.test_demo_and_detectors.DemoTests.test_demo_detector_returns_scene_boxes) ... ok
+test_demo_scene_generates_valid_frames_and_boxes (apps.monitoring.tests.test_demo_and_detectors.DemoTests.test_demo_scene_generates_valid_frames_and_boxes) ... ok
+test_hog_detector_is_available (apps.monitoring.tests.test_demo_and_detectors.DetectorTests.test_hog_detector_is_available) ... ok
+test_hybrid_detector_applies_nms_with_several_boxes (apps.monitoring.tests.test_demo_and_detectors.DetectorTests.test_hybrid_detector_applies_nms_with_several_boxes)
+Regresi�n: el modo h�brido fallaba al aplicar NMS con 2+ cajas. ... ok
+test_motion_detector_finds_moving_object (apps.monitoring.tests.test_demo_and_detectors.DetectorTests.test_motion_detector_finds_moving_object) ... ok
+test_motion_detector_returns_boxes_inside_frame (apps.monitoring.tests.test_demo_and_detectors.DetectorTests.test_motion_detector_returns_boxes_inside_frame) ... ok
+test_nms_suppresses_overlapping_boxes (apps.monitoring.tests.test_demo_and_detectors.DetectorTests.test_nms_suppresses_overlapping_boxes) ... ok
+test_boxes_are_inside_frame (apps.monitoring.tests.test_precision.DnnDetectorTests.test_boxes_are_inside_frame) ... ok
+test_corrupt_model_reports_unavailable (apps.monitoring.tests.test_precision.DnnDetectorTests.test_corrupt_model_reports_unavailable) ... ok
+test_empty_frame_has_no_people (apps.monitoring.tests.test_precision.DnnDetectorTests.test_empty_frame_has_no_people) ... ok
+test_model_loads_and_runs_from_unicode_path (apps.monitoring.tests.test_precision.DnnDetectorTests.test_model_loads_and_runs_from_unicode_path) ... ok
+test_merge_fragments_joins_stacked_pieces (apps.monitoring.tests.test_precision.FragmentTests.test_merge_fragments_joins_stacked_pieces) ... ok
+test_suppress_contained_keeps_two_people_side_by_side (apps.monitoring.tests.test_precision.FragmentTests.test_suppress_contained_keeps_two_people_side_by_side) ... ok
+test_suppress_contained_removes_head_and_legs (apps.monitoring.tests.test_precision.FragmentTests.test_suppress_contained_removes_head_and_legs) ... ok
+test_fragmented_detections_count_as_one_person (apps.monitoring.tests.test_precision.OnePersonTests.test_fragmented_detections_count_as_one_person) ... ok
+test_large_close_person_keeps_identifier_with_fast_motion (apps.monitoring.tests.test_precision.OnePersonTests.test_large_close_person_keeps_identifier_with_fast_motion) ... ok
+test_occupancy_does_not_flicker_on_single_missed_detection (apps.monitoring.tests.test_precision.OnePersonTests.test_occupancy_does_not_flicker_on_single_missed_detection) ... ok
+test_person_standing_on_the_line_does_not_add_counts (apps.monitoring.tests.test_precision.OnePersonTests.test_person_standing_on_the_line_does_not_add_counts) ... ok
+test_round_trip_counts_one_entry_and_one_exit (apps.monitoring.tests.test_precision.OnePersonTests.test_round_trip_counts_one_entry_and_one_exit) ... ok
+test_active_tracks_tolerates_small_gaps (apps.monitoring.tests.test_tracker.CentroidTrackerTests.test_active_tracks_tolerates_small_gaps) ... ok
+test_keeps_identifier_while_person_moves (apps.monitoring.tests.test_tracker.CentroidTrackerTests.test_keeps_identifier_while_person_moves) ... ok
+test_removes_track_after_disappearing (apps.monitoring.tests.test_tracker.CentroidTrackerTests.test_removes_track_after_disappearing) ... ok
+test_requires_several_hits_to_confirm (apps.monitoring.tests.test_tracker.CentroidTrackerTests.test_requires_several_hits_to_confirm) ... ok
+test_unique_counter_is_not_duplicated (apps.monitoring.tests.test_tracker.CentroidTrackerTests.test_unique_counter_is_not_duplicated) ... ok
+
+----------------------------------------------------------------------
+Ran 62 tests in 19.815s
+
+OK
+Destroying test database for alias 'default' ('test_conteo_lab')...
+
+  Applying sessions.0001_initial... OK
+System check identified no issues (0 silenced).

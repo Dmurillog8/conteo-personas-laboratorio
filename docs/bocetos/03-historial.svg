@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<rect width="1200" height="760" fill="#f3f6fa"/>
+<rect x="0" y="0" width="1198" height="74" fill="#17334d" stroke="#17334d" stroke-width="2"/>
+<text x="26" y="48" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#ffffff">LabCount</text>
+<text x="300" y="45" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#ffffff">Panel     Sesiones     Reportes</text>
+<text x="970" y="44" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#ffffff">Usuario | Salir</text>
+<text x="30" y="126" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#203247">3. Historial y resultados</text>
+<text x="30" y="737" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Boceto de diseño • datos ilustrativos • Conteo de personas en el laboratorio</text>
+<rect x="30" y="158" width="1140" height="66" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="50" y="199" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#203247">Estado: [Todos]    Buscar: [Laboratorio o fuente]     [Filtrar]</text>
+<rect x="30" y="245" width="1140" height="230" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="47" y="285" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#203247">Sesión    Laboratorio     Fuente       Inicio          Entradas    Salidas    Estado       Acción</text>
+<text x="47" y="338" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#203247">01           Lab P             Cámara      10:00           4                 2          Finalizada     Ver detalle</text>
+<text x="47" y="394" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#203247">02           Lab P             Video         11:30           6                 3          Finalizada     Ver detalle</text>
+<text x="420" y="450" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Anterior     Página 1 de 2     Siguiente</text>
+<rect x="30" y="500" width="550" height="176" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="50" y="541" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#203247">Detalle de una sesión</text>
+<text x="50" y="580" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#203247">Gráfica · Cruces · Capturas · Duración</text>
+<text x="50" y="629" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#203247">[Exportar muestras CSV]</text>
+<rect x="605" y="500" width="565" height="176" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="625" y="541" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#203247">Reportes</text>
+<text x="625" y="580" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#203247">Período: 7 / 30 / 90 días · Resumen</text>
+<text x="625" y="629" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#203247">[Exportar sesiones CSV]</text>
+</svg>

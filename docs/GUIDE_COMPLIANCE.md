@@ -1,38 +1,46 @@
-# Trazabilidad contra la guía · LabCount
+# Trazabilidad de la guía y rúbrica — LabCount
 
-Guía: G003-S12-SOFTWARE2019-PRESENCIAL-CONSTRU2026115102458 (Construcción
-de software). Requisitos identificados y cómo se cumplen.
+Guía G003-S12 y capturas de evaluación proporcionadas por el equipo. Tema: **Conteo de personas en el laboratorio**. Revisión local: 9 de noviembre de 2026.
 
-| # | Requisito de la guía | Cumplimiento en el proyecto |
+Implementado significa que existe código; validado significa que se obtuvo evidencia de ejecución. Un documento de planificación no sustituye un tablero real ni una grabación.
+
+## Requisitos técnicos y sesiones
+
+| Requisito | Evidencia | Estado / límite |
 |---|---|---|
-| 1 | Backend en Python con framework Django | Django 5.2 (`config/`, apps) |
-| 2 | Uso obligatorio de OpenCV | `opencv-python` 4.14; `cv2` en detectores, tracker, contador, manager, vistas |
-| 3 | Base de datos PostgreSQL | `django.db.backends.postgresql`; Docker Compose PostgreSQL 16; `.env` |
-| 4 | Captura de video en tiempo real (cámara/archivo) | `cv2.VideoCapture`; `StreamManager._open_source` |
-| 5 | Detección de personas | HOG (`HOGDescriptor`), MOG2, híbrido; NMS |
-| 6 | Conteo y resultados sobre el video | Línea virtual, cajas, trayectorias, HUD con métricas |
-| 7 | Interfaz web interactiva | Dashboard, formularios, gráfica Canvas, polling REST |
-| 8 | Repositorio GitHub con README y requirements | `README.md`, `requirements.txt`, estructura lista para `git init`/push |
-| 9 | Sin entorno virtual versionado | `.gitignore` excluye `.venv/` |
-| 10 | Tema elegido: "Conteo de personas en el laboratorio" | Título, modelos, UI y docs usan el tema |
-| 11 | Roles y reglas de trabajo | `docs/ROLES_AND_RULES.md` |
-| 12 | 3 bocetos de interfaz (sketches) | `docs/WIREFRAMES.md` |
-| 13 | Matriz de riesgos | `docs/RISK_MATRIX.md` |
-| 14 | Tablero Jira | `docs/JIRA_BOARD.md` |
-| 15 | Pruebas | `docs/TEST_PLAN.md` + 48 pruebas automatizadas |
+| Python y Django | `config/`, `apps/`, `requirements.txt`; `manage.py check` | Validado localmente |
+| OpenCV obligatorio | Detectores, contador, gestor de video; módulo `cv2` | Carga del modelo y pruebas aprobadas |
+| PostgreSQL | Configuración, migraciones y servidor local 16.15 | Creado y probado; datos fuera del repositorio |
+| Sesión 1: proyecto y captura/transmisión en tiempo real | Django, `cv2.VideoCapture`, MJPEG | Demo HTTP y apertura de cámara real visibles en capturas de Ruth; falta evaluación sistemática |
+| Sesión 2: procesamiento, detección y resultados sobre video | YOLO/OpenCV DNN, HOG, MOG2, híbrido; cajas, línea y métricas | Código y pruebas presentes; precisión real pendiente. MOG2 detecta movimiento |
+| Sesión 3: interfaz y pruebas | Panel, historial, reportes; 62 pruebas aprobadas sin omisiones | HTTP validado; demo en navegador actualiza las tarjetas tras corrección; faltan casos reales |
+| Conteo de personas | Detecciones, seguimiento, cruces | Personas visibles estimadas; no acredita ocupación de toda la sala |
+| GitHub | https://github.com/Dmurillog8/conteo-personas-laboratorio | Cambios de esta revisión locales, pendientes de publicar |
+| README, requirements y exclusión de entorno virtual | Archivos presentes y `.gitignore` | Revisar archivos incluidos antes de publicar |
 
-## Verificación rápida
+## Rúbrica suministrada (10 puntos)
 
-```bash
-python manage.py check          # sin errores
-python manage.py test           # 48 OK
-curl http://127.0.0.1:8000/health/   # status ok, opencv 4.14.0, database ok
-```
+| Criterio | Máximo | Material preparado | Pendiente |
+|---|---:|---|---|
+| Roles y al menos cinco reglas | 2 | [Cinco integrantes y ocho reglas](ROLES_AND_RULES.md) | Revisión y participación efectiva del equipo |
+| Tres bocetos completos | 2 | [Acceso, panel e historial](WIREFRAMES.md), PNG/SVG | Incorporar al PDF; confirmar adaptación al tema |
+| Al menos tres riesgos con causa, impacto y prevención | 3 | [Nueve riesgos](RISK_MATRIX.md) | Revisar e incorporar al PDF |
+| Jira con columnas, asignaciones, capturas y enlace | 3 | [Tablero LAB con 12 tareas](JIRA_BOARD.md) | Añadir capturas y verificar acceso del docente |
 
-## Notas
+La rúbrica menciona pantallas de biblioteca; la guía permite conteo de personas. Se proponen acceso, monitoreo e historial como adaptación. Confirmar con el docente; no se declara esa equivalencia aprobada ni se garantiza calificación.
 
-- OpenCV se integra como dependencia (`opencv-python`) en lugar de
-  vendorizar el repositorio C++: más portable y reproducible, y expone el
-  mismo módulo `cv2` exigido por la guía (ver `OPENCV_INTEGRATION.md`).
-- PostgreSQL es obligatorio; SQLite solo se admite para pruebas aisladas
-  (`DB_ENGINE=sqlite`).
+## Entregables y condiciones
+
+| Requisito | Estado |
+|---|---|
+| Aplicativo funcional con detección en tiempo real | Ejecución local, cámara real visible en capturas y demo con tarjetas actualizadas; precisión real pendiente |
+| PDF usando plantilla del aula | Contenido en `docs/`; ensamblado final y evidencias pendientes |
+| Enlace GitHub dentro del PDF | Conocido; publicar revisión local antes de entregar |
+| Video desde computadora, máximo tres minutos, funciones implementadas | Grabación aportada de ~3 min 34 s; recortar o repetir a ≤3 min |
+| Video en Drive y permisos correctos | Pendiente; no se proporcionó enlace |
+| Participación de todos y plazo | Acreditar participación y consultar plazo en plataforma |
+| Trabajo original y fuentes | Reconocer repositorio base y explicar aportes propios |
+
+Los videos de rostros, objetos y manos son recursos de apoyo, no funciones obligatorias del tema elegido.
+
+Consultar [validación](VALIDACION.md), [pruebas](TEST_PLAN.md) y [pasos de entrega](ENTREGA_DOCENTE.md).

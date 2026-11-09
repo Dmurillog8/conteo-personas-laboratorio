@@ -1,67 +1,31 @@
-# Tablero Jira · LabCount
+# Jira — LabCount
 
-Proyecto académico. Convención de claves: `LAB-NN`. Estados:
-**Backlog → To Do → In Progress → In Review → Done**.
+**Proyecto:** LabCount — Conteo de personas en el laboratorio (`LAB`).
+**Tablero:** https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none
+**Comprobado el 9 de noviembre de 2026:** 12 tareas asignadas; 7 Por hacer, 5 En curso y 0 Listo.
 
-## 1. Épicas
+El tablero Kanban tiene las columnas **Por hacer**, **En curso** y **Listo**. Las tareas contienen descripción y criterios de aceptación. Su asignación no acredita la ejecución; cada responsable debe actualizar el estado según su trabajo real.
 
-| Clave | Épica | Descripción |
-|---|---|---|
-| LAB-E1 | Infraestructura y proyecto base | Django, PostgreSQL, Docker, settings, .env |
-| LAB-E2 | Motor de conteo OpenCV | Detector, tracker, contador, línea virtual |
-| LAB-E3 | Streaming y panel en tiempo real | MJPEG, API stats, dashboard, JS/Canvas |
-| LAB-E4 | Persistencia e historial | Sesiones, muestras, cruces, snapshots |
-| LAB-E5 | Reportes y exportación | Resumen, CSV, filtros |
-| LAB-E6 | Autenticación y administración | Registro, login, permisos, admin |
-| LAB-E7 | Calidad y documentación | Pruebas, README, docs, riesgos |
+| Clave | Actividad | Responsable asignado | Estado comprobado |
+|---|---|---|---|
+| [LAB-1](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-1) | Organizar roles, reglas y tablero | Darlyn Joshua Murillo García | En curso |
+| [LAB-2](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-2) | Revisar instalación Django y PostgreSQL | Deyvi Matheus Torres Morales | Por hacer |
+| [LAB-3](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-3) | Revisar registro, inicio y cierre de sesión | Billy Dilson Crespo Ayala | Por hacer |
+| [LAB-4](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-4) | Validar cámara web y archivo de video | Deyvi Matheus Torres Morales | Por hacer |
+| [LAB-5](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-5) | Validar detección, seguimiento y cruces | Deyvi Matheus Torres Morales | Por hacer |
+| [LAB-6](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-6) | Corregir y verificar indicadores en vivo | Billy Dilson Crespo Ayala | En curso |
+| [LAB-7](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-7) | Validar historial, PostgreSQL y CSV | Jorge Alfredo Patiño Suárez | Por hacer |
+| [LAB-8](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-8) | Preparar tres bocetos: acceso, panel e historial | Billy Dilson Crespo Ayala | Por hacer |
+| [LAB-9](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-9) | Ejecutar pruebas y registrar resultados manuales | Jorge Alfredo Patiño Suárez | En curso |
+| [LAB-10](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-10) | Consolidar riesgos y documentación | Ruth Noemi Román Gamarra | En curso |
+| [LAB-11](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-11) | Preparar video de máximo tres minutos | Darlyn Joshua Murillo García | Por hacer |
+| [LAB-12](https://proyecto-practico-experimentental.atlassian.net/browse/LAB-12) | Consolidar PDF y enlaces de entrega | Ruth Noemi Román Gamarra | En curso |
 
-## 2. Historias de usuario (resumen)
+## Evidencia por completar
 
-### Épica E1
-- **LAB-01** Como desarrollador, quiero un proyecto Django configurado con PostgreSQL para tener la base del sistema. (5 pts) — Done
-- **LAB-02** Como desarrollador, quiero Docker Compose con PostgreSQL 16 para levantar la BD fácilmente. (3 pts) — Done
-- **LAB-03** Como desarrollador, quiero variables de entorno documentadas (.env.example). (2 pts) — Done
+1. Capturar el tablero con tres columnas y responsables e incluirlo en el PDF.
+2. Capturar tareas con descripción, responsable y estado.
+3. Adjuntar resultados reales en Jira antes de marcar tareas como **Listo**.
+4. Comprobar acceso del docente al tablero; el acceso externo aún no está verificado.
 
-### Épica E2
-- **LAB-04** Como sistema, quiero detectar personas con HOG de OpenCV. (5 pts) — Done
-- **LAB-05** Como sistema, quiero detectar movimiento con MOG2. (3 pts) — Done
-- **LAB-06** Como sistema, quiero un modo híbrido HOG+movimiento. (3 pts) — Done
-- **LAB-07** Como sistema, quiero seguir personas por centroides. (5 pts) — Done
-- **LAB-08** Como sistema, quiero contar cruces de una línea virtual. (5 pts) — Done
-- **LAB-09** Como presentador, quiero un modo demo sintético sin hardware. (5 pts) — Done
-
-### Épica E3
-- **LAB-10** Como usuario, quiero ver video en vivo anotado en el navegador. (5 pts) — Done
-- **LAB-11** Como usuario, quiero ver KPIs en tiempo real (ocupación, entradas, salidas). (3 pts) — Done
-- **LAB-12** Como usuario, quiero una gráfica de ocupación en vivo. (3 pts) — Done
-- **LAB-13** Como usuario, quiero iniciar/detener el monitoreo desde el panel. (3 pts) — Done
-
-### Épica E4
-- **LAB-14** Como usuario, quiero que las sesiones queden guardadas. (3 pts) — Done
-- **LAB-15** Como usuario, quiero consultar el historial de sesiones. (3 pts) — Done
-- **LAB-16** Como usuario, quiero ver el detalle de una sesión con gráfica. (3 pts) — Done
-- **LAB-17** Como usuario, quiero guardar capturas (snapshots). (2 pts) — Done
-
-### Épica E5
-- **LAB-18** Como usuario, quiero exportar sesiones a CSV. (2 pts) — Done
-- **LAB-19** Como usuario, quiero exportar el detalle de una sesión a CSV. (2 pts) — Done
-- **LAB-20** Como usuario, quiero ver reportes agregados. (3 pts) — Done
-
-### Épica E6
-- **LAB-21** Como visitante, quiero registrarme e iniciar sesión. (3 pts) — Done
-- **LAB-22** Como sistema, quiero que cada usuario vea solo sus sesiones. (3 pts) — Done
-- **LAB-23** Como admin, quiero un panel de administración. (2 pts) — Done
-
-### Épica E7
-- **LAB-24** Como QA, quiero pruebas automatizadas del contador y tracker. (5 pts) — Done
-- **LAB-25** Como QA, quiero pruebas de vistas y modelos. (3 pts) — Done
-- **LAB-26** Como documentador, quiero README y docs completos. (5 pts) — Done
-- **LAB-27** Como equipo, quiero matriz de riesgos y bocetos. (3 pts) — Done
-
-## 3. Backlog futuro (no incluido en esta entrega)
-
-- LAB-F1 Detección con modelos DNN (YOLO/MobileNet) para mayor precisión.
-- LAB-F2 Alertas por aforo máximo (notificación/email).
-- LAB-F3 Multi-cámara simultánea.
-- LAB-F4 Despliegue en la nube (Docker + gunicorn + nginx).
-- LAB-F5 Dashboard con WebSockets (Channels) en lugar de polling.
+El video aportado dura aproximadamente 3 min 34 s; la guía exige **máximo 3 min**. LAB-11 recoge una versión apta y su enlace de Drive.

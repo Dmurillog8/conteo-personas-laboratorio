@@ -34,8 +34,9 @@ def main() -> int:
         print(f"[ok] {destination} ({destination.stat().st_size / 1e6:.1f} MB)")
 
     import cv2
+    import numpy as np
 
-    net = cv2.dnn.readNetFromONNX(str(TARGET / "yolov5n.onnx"))
+    net = cv2.dnn.readNetFromONNX(np.frombuffer((TARGET / "yolov5n.onnx").read_bytes(), dtype=np.uint8))
     print(f"[ok] OpenCV {cv2.__version__} cargó el modelo correctamente: {net is not None}")
     return 0
 

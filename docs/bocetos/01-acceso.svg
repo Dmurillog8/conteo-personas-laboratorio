@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<rect width="1200" height="760" fill="#f3f6fa"/>
+<rect x="0" y="0" width="1198" height="74" fill="#17334d" stroke="#17334d" stroke-width="2"/>
+<text x="26" y="48" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#ffffff">LabCount</text>
+<text x="300" y="45" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#ffffff">Inicio</text>
+<text x="970" y="44" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#ffffff">Registrarse</text>
+<text x="30" y="126" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#203247">1. Acceso / login</text>
+<text x="30" y="737" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Boceto de diseño • datos ilustrativos • Conteo de personas en el laboratorio</text>
+<rect x="355" y="163" width="490" height="510" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="410" y="227" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#203247">Acceso al laboratorio</text>
+<text x="400" y="280" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#203247">Usuario</text>
+<rect x="400" y="292" width="400" height="49" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="413" y="322" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Escribe tu usuario</text>
+<text x="400" y="385" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#203247">Contraseña</text>
+<rect x="400" y="398" width="400" height="49" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="416" y="429" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#203247">••••••••</text>
+<text x="400" y="482" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#a73737">Área de mensaje: credenciales incorrectas</text>
+<rect x="400" y="515" width="400" height="52" fill="#176b84" stroke="#a8b7c8" stroke-width="2"/>
+<text x="500" y="549" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff">Iniciar sesión</text>
+<text x="420" y="625" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#203247">¿No tienes cuenta? Registrarse</text>
+</svg>

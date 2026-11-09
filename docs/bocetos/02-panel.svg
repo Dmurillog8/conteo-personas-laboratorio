@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<rect width="1200" height="760" fill="#f3f6fa"/>
+<rect x="0" y="0" width="1198" height="74" fill="#17334d" stroke="#17334d" stroke-width="2"/>
+<text x="26" y="48" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#ffffff">LabCount</text>
+<text x="300" y="45" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#ffffff">Panel     Sesiones     Reportes</text>
+<text x="970" y="44" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#ffffff">Usuario | Salir</text>
+<text x="30" y="126" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#203247">2. Panel de conteo</text>
+<text x="30" y="737" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Boceto de diseño • datos ilustrativos • Conteo de personas en el laboratorio</text>
+<rect x="30" y="155" width="730" height="340" fill="#e4eaf1" stroke="#a8b7c8" stroke-width="2"/>
+<text x="65" y="200" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#203247">VIDEO EN VIVO · fuente seleccionada</text>
+<rect x="240" y="228" width="95" height="195" fill="#e4eaf1" stroke="#168674" stroke-width="2"/>
+<text x="252" y="252" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#203247">ID 1</text>
+<rect x="430" y="251" width="92" height="185" fill="#e4eaf1" stroke="#168674" stroke-width="2"/>
+<text x="442" y="276" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#203247">ID 2</text>
+<rect x="388" y="218" width="2" height="245" fill="#176b84" stroke="#176b84" stroke-width="2"/>
+<text x="68" y="476" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Entrada → | Línea virtual | ← Salida</text>
+<rect x="785" y="155" width="385" height="490" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="810" y="200" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#203247">Configurar monitoreo</text>
+<text x="808" y="240" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Laboratorio: [Seleccionar]</text>
+<text x="808" y="288" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Fuente: Cámara / Archivo / Demo</text>
+<text x="808" y="336" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Detector: YOLO / HOG / MOG2 / Híbrido</text>
+<text x="808" y="384" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Línea: Vertical / Horizontal</text>
+<text x="808" y="432" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#203247">Posición: [0,50]</text>
+<rect x="809" y="477" width="150" height="46" fill="#176b84" stroke="#a8b7c8" stroke-width="2"/>
+<text x="829" y="507" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#ffffff">Iniciar</text>
+<rect x="978" y="477" width="167" height="46" fill="#176b84" stroke="#a8b7c8" stroke-width="2"/>
+<text x="998" y="507" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#ffffff">Capturar</text>
+<rect x="809" y="547" width="336" height="46" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="930" y="577" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#203247">Finalizar</text>
+<rect x="30" y="517" width="173" height="84" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="42" y="544" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#203247">Visibles</text>
+<text x="42" y="579" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#203247">2</text>
+<rect x="215" y="517" width="173" height="84" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="227" y="544" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#203247">Entradas</text>
+<text x="227" y="579" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#203247">4</text>
+<rect x="400" y="517" width="173" height="84" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="412" y="544" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#203247">Salidas</text>
+<text x="412" y="579" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#203247">2</text>
+<rect x="585" y="517" width="173" height="84" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="597" y="544" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#203247">IDs / Pico</text>
+<text x="597" y="579" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#203247">4 / 3</text>
+<rect x="30" y="622" width="730" height="72" fill="#ffffff" stroke="#a8b7c8" stroke-width="2"/>
+<text x="48" y="662" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#203247">Gráfica: evolución de personas visibles en el tiempo</text>
+</svg>

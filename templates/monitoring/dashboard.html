@@ -39,7 +39,7 @@
       <div class="video-shell" id="videoShell" title="Doble clic o tecla F para pantalla completa">
         <img id="liveStream" src="{% url 'monitoring:stream' %}" alt="Transmisión de video con conteo de personas" loading="eager">
         <div class="video-top-overlay">
-          <span class="video-live"><span class="pulse-dot"></span> Cámara activa</span>
+          <span class="video-live"><span class="pulse-dot"></span> Transmisión activa</span>
           <span class="video-top-right">
             <span class="video-opencv">OpenCV {{ OPENCV_VERSION }}</span>
             <button type="button" class="video-fs-btn" id="fullscreenToggle" aria-label="Pantalla completa" title="Pantalla completa (F)">
@@ -95,7 +95,7 @@
         <div class="card-header">
           <div>
             <span class="card-kicker">Ocupación actual</span>
-            <h3>Personas en el laboratorio</h3>
+            <h3>Personas visibles en cámara</h3>
           </div>
           <span class="live-dot" title="Actualización en tiempo real"></span>
         </div>
@@ -154,7 +154,7 @@
           <span class="metric-icon">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm7 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 20c0-4 3.1-7 7-7s7 3 7 7h-2c0-2.8-2.2-5-5-5s-5 2.2-5 5H2Zm13.5 0c-.2-1.4-.7-2.7-1.5-3.8.8-.4 1.6-.6 2.5-.6 3.9 0 7 3 7 7h-8v-1.1c0-.5 0-1 0-1.5Z"/></svg>
           </span>
-          <span class="metric-label">Visitantes únicos</span>
+          <span class="metric-label" title="Identificadores de seguimiento; una persona puede recibir otro ID si sale de cámara.">Identificadores registrados</span>
           <strong id="uniqueCount">{{ stats.unique|default:0 }}</strong>
         </article>
         <article class="metric-card metric-fps">
@@ -447,6 +447,6 @@
 
 {% block extra_js %}
   {% load static %}
-  <script src="{% static 'js/charts.js' %}"></script>
+  <script src="{% static 'js/charts.js' %}?v=2"></script>
   <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

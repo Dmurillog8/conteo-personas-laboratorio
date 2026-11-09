@@ -4,12 +4,17 @@ Aplicación web para contar y monitorear personas en un laboratorio en tiempo
 real. Combina **Django** (backend web), **OpenCV** (captura de video y
 detección de personas) y **PostgreSQL** (persistencia). La guía práctica
 G003-S12 (Construcción de software) exige estas tres tecnologías y una
-interfaz interactiva con video en vivo; este repositorio cumple todos los
-requisitos.
+interfaz interactiva con video en vivo. El estado técnico y las evidencias
+pendientes de entrega se detallan en [la matriz de cumplimiento](docs/GUIDE_COMPLIANCE.md).
 
-> Estado: aplicación funcional, 48 pruebas automatizadas (todas en verde),
-> PostgreSQL en contenedor Docker, OpenCV 4.14 integrado como dependencia
-> Python (`opencv-python`), sin entorno virtual versionado.
+> Tema: **Conteo de personas en el laboratorio**. PostgreSQL local o mediante Docker;
+> OpenCV integrado como `cv2`. Consulte [resultados comprobados](docs/VALIDACION.md).
+> [Tablero Jira LAB](docs/JIRA_BOARD.md) creado; faltan capturas, un video de hasta tres minutos en Drive y el PDF final.
+
+**Para comenzar en Windows:** [arranque paso a paso](docs/INSTALACION_WINDOWS.md).
+**Informe editable:** [documentación de la práctica](docs/INFORME_PRACTICA.md).
+**Para preparar la entrega:** [checklist del docente](docs/ENTREGA_DOCENTE.md).
+**Equipo:** [integrantes, roles y responsabilidades](docs/ROLES_AND_RULES.md).
 
 ---
 
@@ -17,16 +22,16 @@ requisitos.
 
 - Tres fuentes de video: cámara web, archivo de video (MP4/AVI/MOV/MKV/WEBM)
   y **demostración sintética** (no requiere cámara ni archivo).
-- Tres métodos de detección OpenCV: **HOG** (personas), **MOG2**
+- Cuatro métodos OpenCV: **YOLO (DNN)**, **HOG** (personas), **MOG2**
   (movimiento) e **Híbrido** (HOG + movimiento). La demostración usa un
   detector sintético con cajas conocidas para garantizar una presentación
   estable.
 - Línea virtual de conteo (vertical u horizontal) con dirección de cruce
   (entrada / salida), debounce por pista y seguimiento por centroides.
 - Streaming MJPEG en tiempo real con anotaciones (cajas, trayectorias, HUD
-  con ocupación, entradas, salidas, únicos, pico, FPS).
+  con personas visibles, entradas, salidas, IDs, pico, FPS).
 - Persistencia de sesiones, muestras de ocupación, eventos de cruce y
-  capturas (snapshots) en PostgreSQL.
+  metadatos de capturas en PostgreSQL; las imágenes se guardan en `media/`.
 - Panel de control con gráfica de ocupación (Canvas), historial paginado,
   filtros, exportación CSV y reportes.
 - Autenticación (registro/login/logout), control de propiedad de sesiones
@@ -38,14 +43,14 @@ requisitos.
 
 | Componente | Versión |
 |---|---|
-| Python | 3.12.10 |
+| Python | Validación local: 3.14.6 |
 | Django | 5.2.19 |
 | OpenCV (`opencv-python`) | 4.14.0.94 |
 | NumPy | 2.5.4 |
 | psycopg (PostgreSQL) | 3.3.8 |
 | python-dotenv | 1.2.4 |
 | Pillow | 11.3.0 |
-| PostgreSQL | 16 (Docker) |
+| PostgreSQL | Validación local: 16.15; Compose: 16 |
 
 ## 3. Estructura del proyecto
 
@@ -77,35 +82,40 @@ requisitos.
 ## 5. Instalación rápida
 
 ```bash
-# 1. Clonar / copiar el proyecto
-cd "Conteo de personas en el laboratorio"
+# 1. Clonar si todavía no tiene una copia
+git clone https://github.com/Dmurillog8/conteo-personas-laboratorio.git
+cd conteo-personas-laboratorio
 
 # 2. (Opcional) entorno virtual local
 python -m venv .venv
-# Windows: .venv\Scripts\activate
+# Windows PowerShell: .\.venv\Scripts\Activate.ps1
+# Windows Git Bash: source .venv/Scripts/activate
 # Linux/macOS: source .venv/bin/activate
 
 # 3. Dependencias
 pip install -r requirements.txt
 
 # 4. Variables de entorno
-cp .env.example .env   # Linux/macOS
-# Windows (PowerShell): Copy-Item .env.example .env
+test -f .env || cp .env.example .env   # Git Bash/Linux/macOS; conserva el existente
+# Windows PowerShell: if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
-# 5. Levantar PostgreSQL
-docker compose up -d
+# 5. Levantar PostgreSQL (elegir una opción)
+# Equipo de Ruth con instalación local preparada:
+python scripts/local_postgres.py start
+# Otros equipos con Docker Desktop: docker compose up -d db
 
 # 6. Migraciones
 python manage.py migrate
 
-# 7. Datos demo (usuario + historial)
-python manage.py seed_demo --with-user --with-history
+# 7. Datos demo (usuario; historial sintético opcional)
+python manage.py seed_demo --with-user
+# --with-history es opcional: genera registros sintéticos, no evidencia real.
 
 # 8. (Opcional) superusuario para /admin
 python manage.py createsuperuser
 
 # 9. Servidor de desarrollo
-python manage.py runserver
+python manage.py runserver --noreload
 ```
 
 Abra `http://127.0.0.1:8000/`. Credenciales demo: **demo / Demo12345!**.
@@ -121,7 +131,7 @@ Ver `.env.example`. Las principales:
 | `DJANGO_ALLOWED_HOSTS` | Hosts permitidos | `127.0.0.1,localhost` |
 | `DB_ENGINE` | `postgresql` o `sqlite` (solo pruebas) | `postgresql` |
 | `DB_NAME/USER/PASSWORD/HOST/PORT` | Conexión PostgreSQL | `conteo_lab` / `conteo_user` / `conteo_pass` / `127.0.0.1` / `5432` |
-| `LABCOUNT_DEFAULT_DETECTOR` | `hybrid`, `hog`, `motion`, `demo` (fuente) | `hybrid` |
+| `LABCOUNT_DEFAULT_DETECTOR` | `dnn`, `hybrid`, `hog`, `motion`; demo es una fuente sintética | `dnn` |
 | `LABCOUNT_CAMERA_INDEX` | Índice de cámara web | `0` |
 | `LABCOUNT_MAX_FRAME_WIDTH` | Ancho máximo de frame | `960` |
 | `LABCOUNT_STREAM_FPS` | FPS del stream | `16` |
@@ -138,7 +148,7 @@ Ver `.env.example`. Las principales:
    - *Archivo de video*: suba un video.
    - *Demostración*: escena sintética con personas animadas (recomendado
      para presentaciones sin hardware).
-3. Elija **Método de detección** (HOG / movimiento / híbrido). En demo se
+3. Elija **Método de detección** (YOLO / HOG / movimiento / híbrido). En demo se
    usa el detector sintético independientemente.
 4. Configure la **línea de conteo** (orientación y posición).
 5. Pulse **Iniciar monitoreo**. El video anotado aparece en vivo.
@@ -153,23 +163,24 @@ Ver `.env.example`. Las principales:
 python manage.py test
 ```
 
-Suite actual: **48 pruebas** (tracker, contador, detectores/demo, modelos,
-vistas). Todas en verde. La base de pruebas usa PostgreSQL (crea/destruye
-la BD de test automáticamente).
+La suite incluye autenticación, modelos, vistas, reportes, detector, tracker y contador.
+El resultado de la ejecución se registra en [VALIDACION.md](docs/VALIDACION.md),
+con su salida de consola. Django crea y elimina una base PostgreSQL temporal separada.
 
 ## 9. Arquitectura (resumen)
 
 - `PeopleCounter` (`apps/monitoring/services/counter.py`) procesa cada frame:
   detector → tracker → cruce de línea → anotación → estadísticas.
-- `CentroidTracker` (`tracker.py`) asocia detecciones por distancia
-  euclidiana, confirma tras `min_hits` y tolera desapariciones.
-- `StreamManager` (`manager.py`) es un singleton con un hilo daemon que
-  mantiene la fuente abierta y publica el último JPEG; el endpoint MJPEG
+- `CentroidTracker` (`tracker.py`) asocia detecciones mediante IoU y distancia
+  normalizada por tamaño, confirma tras `min_hits` y tolera desapariciones.
+- `StreamManager` (`manager.py`) es un singleton con un hilo de captura y un trabajador de persistencia
+  mediante cola. Mantiene la fuente abierta y publica el último JPEG; el endpoint MJPEG
   (`/monitoring/stream/`) y la API (`/monitoring/api/stats/`) consumen ese
   estado. Persiste muestras cada `LABCOUNT_SAMPLE_SECONDS` y cruces al
   ocurrir.
 - Modelos: `Laboratory`, `MonitoringSession`, `OccupancySample`,
-  `CrossingEvent`, `Snapshot`. Visibilidad por propietario (staff ve todo).
+  `CrossingEvent`, `Snapshot`. El historial se filtra por propietario (staff ve todo).
+  El video y estadísticas en vivo se comparten entre usuarios autenticados del mismo proceso.
 
 Más detalle en `docs/ARCHITECTURE.md`.
 
@@ -181,7 +192,7 @@ complicaría el build), se integra `opencv-python` como dependencia, que
 expone el mismo módulo `cv2` usado en todo el proyecto:
 
 - Captura: `cv2.VideoCapture` (cámara/archivo).
-- Detección: `cv2.HOGDescriptor`, `cv2.createBackgroundSubtractorMOG2`,
+- Detección: `cv2.dnn.readNetFromONNX`, `cv2.HOGDescriptor`, `cv2.createBackgroundSubtractorMOG2`,
   NMS por `cv2.dnn.NMSBoxes`.
 - Anotación: `cv2.rectangle`, `cv2.putText`, `cv2.circle`, `cv2.line`,
   `cv2.addWeighted`.
@@ -195,7 +206,7 @@ ejecutar `import cv2` en cualquier entorno con la rueda instalada.
 En `docs/`:
 
 - `ROLES_AND_RULES.md` — roles del equipo y reglas de trabajo.
-- `WIREFRAMES.md` — 3 bocetos de interfaz (landing, panel, historial).
+- `WIREFRAMES.md` — 3 bocetos de interfaz (login, panel, historial).
 - `RISK_MATRIX.md` — matriz de riesgos.
 - `JIRA_BOARD.md` — tablero Jira (épicas/historias).
 - `ARCHITECTURE.md` — arquitectura detallada.
@@ -204,7 +215,16 @@ En `docs/`:
 - `GUIDE_COMPLIANCE.md` — trazabilidad contra la guía.
 - `OPENCV_INTEGRATION.md` — detalle de integración OpenCV.
 
-## 12. Despliegue / notas
+## 12. Alcance del conteo
+
+- **Personas visibles**: pistas confirmadas en la imagen, suavizadas con una mediana; no representa personas fuera del campo de la cámara.
+- **Entradas/salidas**: cruces observados de la línea virtual; configurar su sentido según la ubicación física.
+- **Identificadores registrados / únicos**: IDs de seguimiento, no identidades biométricas; alguien que sale de imagen puede recibir otro ID.
+- **Demo sintética**: valida el flujo de la aplicación; no mide precisión con personas reales.
+- **MOG2**: detecta movimiento y puede incluir objetos. Validar el conteo en el laboratorio mediante observación manual.
+- Una fuente de video activa por proceso; no está resuelta una instalación multicámara o con múltiples procesos.
+
+## 13. Despliegue / notas
 
 - En producción: `DEBUG=False`, `DJANGO_SECRET_KEY` seguro,
   `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS` configurados, servir estáticos
@@ -213,6 +233,8 @@ En `docs/`:
   solo se admite para pruebas aisladas.
 - No se versionan `.env`, `.venv`, `media/`, `staticfiles/`, logs.
 
-## 13. Licencia
+## 14. Uso académico y procedencia
 
-Proyecto académico para la guía G003-S12. Uso educativo.
+Proyecto académico basado en https://github.com/Dmurillog8/conteo-personas-laboratorio.
+Conservar la atribución y explicar los aportes propios del equipo. Esta nota no sustituye
+la revisión de licencias de dependencias y del modelo antes de redistribuirlos.
