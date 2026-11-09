@@ -1,6 +1,6 @@
 # Registro de validación local — LabCount
 
-**Fecha: 9 de noviembre de 2026.** Tema: Conteo de personas en el laboratorio. Base revisada: commit `985cb474caa87a436715bd773a4fc4030055073b`. Los cambios descritos se encuentran en la copia local; todavía no se han publicado en GitHub.
+**Fecha: 9 de noviembre de 2026.** Tema: Conteo de personas en el laboratorio. Base revisada: commit `985cb474caa87a436715bd773a4fc4030055073b`. Los cambios se publicaron en la rama [`docs/labcount-validacion-entrega`](https://github.com/Dmurillog8/conteo-personas-laboratorio/tree/docs/labcount-validacion-entrega); la integración en `main` requiere revisión.
 
 ## Entorno y base de datos
 

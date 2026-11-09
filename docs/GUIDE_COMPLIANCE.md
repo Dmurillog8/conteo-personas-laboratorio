@@ -15,7 +15,7 @@ Implementado significa que existe código; validado significa que se obtuvo evid
 | Sesión 2: procesamiento, detección y resultados sobre video | YOLO/OpenCV DNN, HOG, MOG2, híbrido; cajas, línea y métricas | Código y pruebas presentes; precisión real pendiente. MOG2 detecta movimiento |
 | Sesión 3: interfaz y pruebas | Panel, historial, reportes; 62 pruebas aprobadas sin omisiones | HTTP validado; demo en navegador actualiza las tarjetas tras corrección; faltan casos reales |
 | Conteo de personas | Detecciones, seguimiento, cruces | Personas visibles estimadas; no acredita ocupación de toda la sala |
-| GitHub | https://github.com/Dmurillog8/conteo-personas-laboratorio | Cambios de esta revisión locales, pendientes de publicar |
+| GitHub | [Rama publicada `docs/labcount-validacion-entrega`](https://github.com/Dmurillog8/conteo-personas-laboratorio/tree/docs/labcount-validacion-entrega) | Pendiente de revisión e integración en `main` |
 | README, requirements y exclusión de entorno virtual | Archivos presentes y `.gitignore` | Revisar archivos incluidos antes de publicar |
 
 ## Rúbrica suministrada (10 puntos)
@@ -35,7 +35,7 @@ La rúbrica menciona pantallas de biblioteca; la guía permite conteo de persona
 |---|---|
 | Aplicativo funcional con detección en tiempo real | Ejecución local, cámara real visible en capturas y demo con tarjetas actualizadas; precisión real pendiente |
 | PDF usando plantilla del aula | Contenido en `docs/`; ensamblado final y evidencias pendientes |
-| Enlace GitHub dentro del PDF | Conocido; publicar revisión local antes de entregar |
+| Enlace GitHub dentro del PDF | Rama publicada; actualizar el enlace al resultado final tras la integración |
 | Video desde computadora, máximo tres minutos, funciones implementadas | Grabación aportada de ~3 min 34 s; recortar o repetir a ≤3 min |
 | Video en Drive y permisos correctos | Pendiente; no se proporcionó enlace |
 | Participación de todos y plazo | Acreditar participación y consultar plazo en plataforma |

@@ -166,7 +166,7 @@ La validación del flujo no demuestra exactitud en el laboratorio. Se requieren 
 ## 12. Enlaces y entrega
 
 - GitHub: https://github.com/Dmurillog8/conteo-personas-laboratorio
-- Publicación de esta revisión: **PENDIENTE; cambios locales**.
+- Publicación de esta revisión: [rama `docs/labcount-validacion-entrega`](https://github.com/Dmurillog8/conteo-personas-laboratorio/tree/docs/labcount-validacion-entrega); **pendiente de integrar en `main`**.
 - Jira: [tablero LAB creado](https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none); **capturas y acceso del docente pendientes**.
 - Video: grabación desde computadora aportada, de aproximadamente 3 min 34 s; **ajustar a ≤3 min y compartir en Drive**.
 - Permisos del video y PDF en plantilla oficial: **PENDIENTES**.

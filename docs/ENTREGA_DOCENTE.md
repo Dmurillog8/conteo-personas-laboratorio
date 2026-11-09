@@ -53,7 +53,7 @@ Usar la plantilla de entrega del aula virtual. Completar portada (asignatura, pr
 
 | Enlace/evidencia | Estado |
 |---|---|
-| GitHub | https://github.com/Dmurillog8/conteo-personas-laboratorio — subir y revisar los cambios locales antes de entregar |
+| GitHub | [Rama de esta revisión](https://github.com/Dmurillog8/conteo-personas-laboratorio/tree/docs/labcount-validacion-entrega); revisar e integrar en `main` antes de entregar |
 | Tablero Jira real | https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none |
 | Capturas del tablero | PENDIENTES |
 | Video Google Drive ≤3 minutos | Grabación local de ~3 min 34 s: ajustar duración y subir a Drive |
