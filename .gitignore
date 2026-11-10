@@ -25,6 +25,7 @@ db.sqlite3-journal
 # Archivos generados
 /media/
 /staticfiles/
+docs/entrega_local/Informe_LabCount_borrador.pdf
 *.log
 logs/*.log
 

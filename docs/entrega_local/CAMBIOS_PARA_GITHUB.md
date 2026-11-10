@@ -21,7 +21,7 @@ La rama `docs/informe-jira-labcount` reúne todas las correcciones locales descr
 
 ## Informe y capturas añadidos a esta rama
 
-- `docs/entrega_local/Informe_LabCount_borrador.docx` y `Informe_LabCount_borrador.pdf`: informe montado sobre la plantilla oficial del docente. Incluye tres capturas Jira en `docs/entrega_local/evidencias_jira/`: tablero, lista de tareas asignadas y resumen. El informe sigue marcado como borrador porque faltan el video de hasta tres minutos con enlace Drive, acceso verificable del docente a Jira y una comparación manual del conteo con personas reales. No debe presentarse como entrega final hasta completar y revisar esos datos.
+- `docs/entrega_local/Informe_LabCount_borrador.docx`: informe editable montado sobre la plantilla oficial del docente. Incluye tres capturas Jira en `docs/entrega_local/evidencias_jira/`: tablero, lista de tareas asignadas y resumen. El PDF `Informe_LabCount_borrador.pdf` se retiró de la rama publicada para corregirlo; se conserva únicamente en el equipo. El informe sigue marcado como borrador porque faltan el video de hasta tres minutos con enlace Drive, acceso verificable del docente a Jira y una comparación manual del conteo con personas reales. No debe presentarse como entrega final hasta completar y revisar esos datos.
 
 ## Antes de integrar en main
 
