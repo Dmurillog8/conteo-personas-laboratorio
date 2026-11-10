@@ -57,7 +57,7 @@ Usar la plantilla de entrega del aula virtual. Completar portada (asignatura, pr
 | Tablero Jira real | https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none |
 | Capturas del tablero | PENDIENTES |
 | Video Google Drive ≤3 minutos | Grabación local de ~3 min 34 s: ajustar duración y subir a Drive |
-| Evidencia con personas reales | Capturas de cámara web aportadas; falta comparación manual del conteo |
+| Evidencia con personas reales | Capturas de cámara web aportadas; un fotograma con 2 personas coincide con video y panel en 02. Faltan secuencia de cruces y comparación manual sistemática |
 | PDF en plantilla y revisión de permisos | PENDIENTE |
 
 No sustituir pendientes por enlaces inventados. Todos los integrantes deben participar y estar presentes según la guía. Verificar el plazo en la plataforma; las fechas del documento no acreditan la fecha límite. Reconocer el repositorio base y explicar el aporte del equipo.

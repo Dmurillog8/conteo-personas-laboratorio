@@ -140,10 +140,12 @@ Se creó el [tablero Jira LAB](https://proyecto-practico-experimentental.atlassi
 | Salud del servicio | HTTP 200; PostgreSQL y OpenCV OK |
 | Demo por HTTP | Login, inicio, JPEG/MJPEG, captura, parada, historial y CSV correctos |
 | Persistencia demo | Sesión 1 finalizada; 3 muestras, 2 cruces y 1 captura con archivo existente |
-| Cámara real | Abierta y visible en capturas de Ruth; conteo manual y precisión pendientes |
+| Cámara real | Captura con dos personas visibles: lectura manual puntual de 2; video y panel muestran 02. Falta validar cruces y precisión en una secuencia completa |
 | Revisión visual del navegador | Portada, panel, demo, historial y reportes; demo del panel repetida tras corrección, casos reales pendientes |
 
 [Salida automatizada](evidencias/pruebas-automatizadas.txt), [registro HTTP](evidencias/flujo-http.txt) y [validación detallada](VALIDACION.md).
+
+**Observación visual puntual con cámara real (captura aportada por Ruth el 10 de noviembre de 2026).** En el fotograma se observan manualmente dos personas. El video procesado indica `02` personas visibles y la tarjeta lateral del panel también indica `02`: ambos coinciden con la observación en ese instante. La pantalla muestra 2 entradas y 1 salida, pero una imagen fija no permite comprobar si esos cruces fueron correctos. Esta observación no establece un porcentaje de precisión ni sustituye una prueba de secuencia con conteo manual. La captura original se conserva con Ruth y no se publica en el repositorio porque muestra personas identificables.
 
 ![Frame de demo sintética](evidencias/demo-sintetica.jpg)
 
