@@ -27,7 +27,7 @@
 | Roles y reglas | 2 | [Cinco roles y ocho reglas](ROLES_AND_RULES.md) | Incorporar al informe; comprobar responsabilidades con cada integrante |
 | Tres bocetos | 2 | [Login, panel, historial](WIREFRAMES.md) | Tres imágenes legibles y sus descripciones |
 | Matriz de riesgos | 3 | [Nueve riesgos](RISK_MATRIX.md) | Riesgo, causa, impacto y acción preventiva; incluir matriz en PDF |
-| Jira | 3 | [Tablero LAB](JIRA_BOARD.md) con tres columnas y 12 tareas asignadas | Capturas y comprobación de acceso del docente |
+| Jira | 3 | [Tablero LAB](JIRA_BOARD.md) con tres columnas y 12 tareas asignadas; capturas del tablero, lista y resumen adjuntas al informe | Comprobación de acceso del docente y seguimiento de estados reales |
 
 La rúbrica menciona login, préstamo y listado de libros, mientras la guía admite este tema. Se adaptaron las tres pantallas a login, conteo e historial. Confirmar esta equivalencia con el docente; no se añadieron funciones de biblioteca. Los videos de rostros/manos/objetos son recursos de apoyo, no funciones obligatorias del tema elegido.
 
@@ -67,7 +67,8 @@ No sustituir pendientes por enlaces inventados. Todos los integrantes deben part
 - [ ] Docente confirma adaptación de bocetos al tema.
 - [ ] Roles y reglas revisados por el equipo.
 - [ ] Bocetos y matriz incluidos y legibles.
-- [ ] Guardar capturas de Jira y verificar acceso del docente (tablero y asignaciones ya creados).
+- [x] Guardar capturas de Jira del tablero, tareas asignadas y resumen en `docs/entrega_local/evidencias_jira/`.
+- [ ] Verificar acceso del docente al tablero y actualizar los estados conforme al avance real.
 - [ ] Pruebas manuales reales completadas; resultados sin afirmaciones no comprobadas.
 - [ ] Video grabado desde computadora, ≤3 min, Drive accesible.
 - [ ] Cambios revisados y publicados en GitHub; README y requirements presentes.

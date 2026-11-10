@@ -121,7 +121,13 @@ Revisar primero riesgos con prioridad ≥6. La demostración sintética permite 
 
 ## 8. Organización en Jira
 
-Se creó el [tablero Jira LAB](https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none) con columnas **Por hacer**, **En curso** y **Listo**. Tiene 12 tareas asignadas a los cinco integrantes, cada una con descripción y criterio de aceptación. Al revisarlo: 7 Por hacer, 5 En curso y 0 Listo. [Detalle de tareas](JIRA_BOARD.md). Faltan capturas del tablero para el PDF y verificar el acceso del docente.
+Se creó el [tablero Jira LAB](https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none) con columnas **Por hacer**, **En curso** y **Listo**. Tiene 12 tareas asignadas a los cinco integrantes, cada una con descripción y criterio de aceptación. Al revisarlo: 7 Por hacer, 5 En curso y 0 Listo. [Detalle de tareas](JIRA_BOARD.md). Las tres capturas siguientes muestran el tablero, las asignaciones y el resumen en ese momento; no acreditan tareas terminadas. Falta verificar el acceso del docente.
+
+![Tablero Jira LAB con columnas y estados](entrega_local/evidencias_jira/01-tablero.png)
+
+![Lista de tareas Jira y personas asignadas](entrega_local/evidencias_jira/02-tareas-asignadas.png)
+
+![Resumen de actividad Jira LAB](entrega_local/evidencias_jira/03-resumen.png)
 
 ## 9. Pruebas y resultados
 
@@ -161,13 +167,13 @@ Seleccionar fuente y detector, ajustar la línea, iniciar, capturar y finalizar.
 
 Se comprobó la ejecución local con PostgreSQL y la integración mediante 62 pruebas y un recorrido HTTP sintético. Se corrigió un problema de carga del modelo desde rutas Windows con tildes.
 
-La validación del flujo no demuestra exactitud en el laboratorio. Se requieren ensayos con personas reales, iluminación y oclusiones, y comparación manual. No corresponde declarar completa la entrega mientras falten las capturas Jira, el video de hasta tres minutos en Drive y el PDF final.
+La validación del flujo no demuestra exactitud en el laboratorio. Se requieren ensayos con personas reales, iluminación y oclusiones, y comparación manual. Las capturas Jira ya están adjuntas; aún falta verificar que el docente pueda abrir el tablero, preparar el video de hasta tres minutos en Drive y cerrar el PDF final.
 
 ## 12. Enlaces y entrega
 
 - GitHub: https://github.com/Dmurillog8/conteo-personas-laboratorio
-- Publicación de esta revisión: [rama `docs/labcount-validacion-entrega`](https://github.com/Dmurillog8/conteo-personas-laboratorio/tree/docs/labcount-validacion-entrega); **pendiente de integrar en `main`**.
-- Jira: [tablero LAB creado](https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none); **capturas y acceso del docente pendientes**.
+- Revisión de todos los cambios locales: [rama `docs/informe-jira-labcount`](https://github.com/Dmurillog8/conteo-personas-laboratorio/tree/docs/informe-jira-labcount); **pendiente de integrar en `main`**.
+- Jira: [tablero LAB creado](https://proyecto-practico-experimentental.atlassian.net/jira/software/projects/LAB/boards/34?filter=&groupBy=none); **capturas adjuntas, acceso del docente pendiente de verificar**.
 - Video: grabación desde computadora aportada, de aproximadamente 3 min 34 s; **ajustar a ≤3 min y compartir en Drive**.
 - Permisos del video y PDF en plantilla oficial: **PENDIENTES**.
 

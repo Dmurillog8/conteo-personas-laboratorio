@@ -60,5 +60,5 @@ Se probó el servidor local con la cuenta de demostración y escena sintética, 
 - El conteo representa personas visibles estimadas. Los identificadores de seguimiento no equivalen a identidades únicas.
 - Una sesión de captura por proceso. Video/estadísticas activos se comparten entre autenticados; historial y controles tienen permisos de propietario/staff. No hay aislamiento completo entre laboratorios.
 - Uso local del servidor de desarrollo; despliegue requiere configuración adicional.
-- Se creó el [tablero Jira LAB](JIRA_BOARD.md) con 12 tareas asignadas. Faltan capturas del tablero y comprobar acceso del docente.
+- Se creó el [tablero Jira LAB](JIRA_BOARD.md) con 12 tareas asignadas. Se adjuntaron tres capturas del tablero, lista de asignaciones y resumen al informe; falta comprobar acceso del docente.
 - El video aportado, grabado desde computadora, dura aproximadamente 3 min 34 s: debe ajustarse a **máximo 3 min** y compartirse mediante Drive. Participación del equipo y PDF final siguen pendientes: ver [entrega](ENTREGA_DOCENTE.md).
