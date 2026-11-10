@@ -23,6 +23,38 @@ LabCount dispone de registro y acceso, selección de cámara/archivo/demo, detec
 
 El número mostrado estima personas visibles en cámara; no representa necesariamente la ocupación de toda la sala. Los identificadores no son identidades personales. La demo es sintética y debe presentarse como simulación.
 
+### Requisitos funcionales
+
+Los siguientes requisitos describen funciones presentes en el código y en la interfaz. Su cumplimiento técnico se distingue de la precisión del conteo en un laboratorio real, que aún requiere una evaluación manual controlada.
+
+| ID | Requisito | Implementación y resultado observable |
+|---|---|---|
+| RF-01 | Registrar usuarios e iniciar y cerrar sesión | Django valida el formulario y protege el panel, el historial, los reportes, el video y las API. |
+| RF-02 | Configurar una sesión de monitoreo | El usuario elige laboratorio, fuente, detector y orientación y posición de la línea virtual. Solo se admite una sesión activa por proceso. |
+| RF-03 | Capturar imágenes | Se admite cámara web, archivo de video o una escena sintética para demostración. |
+| RF-04 | Detectar personas | OpenCV ofrece YOLO mediante DNN, HOG, MOG2 e híbrido. La demo usa detecciones sintéticas. |
+| RF-05 | Seguir personas y contar cruces | El seguimiento asigna IDs temporales; la línea vertical u horizontal registra entradas y salidas por dirección. |
+| RF-06 | Mostrar resultados en vivo | El navegador recibe video MJPEG anotado y consulta estadísticas JSON para ocupación visible, pico, cruces, IDs y rendimiento. |
+| RF-07 | Controlar el aforo mostrado | El panel compara las personas visibles con la capacidad configurada y presenta el porcentaje y estado. No mide automáticamente a quienes están fuera de cámara. |
+| RF-08 | Guardar y consultar sesiones | PostgreSQL conserva sesión, muestras periódicas, eventos de cruce y metadatos de capturas; las imágenes se guardan en `media/`. |
+| RF-09 | Consultar resultados anteriores | El historial muestra sesiones, filtros y detalle; los reportes resumen periodos de 7, 30 y 90 días. |
+| RF-10 | Exportar resultados | Se generan archivos CSV del periodo o de una sesión. |
+| RF-11 | Restringir el acceso a datos | El usuario normal consulta sus sesiones; el personal `staff` puede consultar todas. Solo el responsable o `staff` puede detener una sesión y guardar capturas. |
+| RF-12 | Administrar laboratorios | El panel de Django permite configurar laboratorios, ubicación, capacidad y estado activo. |
+
+### Requisitos no funcionales
+
+| ID | Requisito o restricción | Evidencia o límite |
+|---|---|---|
+| RNF-01 | Tecnologías de la guía | Backend Python/Django, procesamiento OpenCV y persistencia PostgreSQL. |
+| RNF-02 | Interfaz web comprensible | Páginas de acceso, panel en vivo, historial y reportes; video con cajas, línea e indicadores. La experiencia visual se revisó en capturas, pero falta evaluación formal de usabilidad. |
+| RNF-03 | Respuesta en tiempo real | El video se entrega por MJPEG y las cifras se actualizan mediante consultas periódicas. Los FPS dependen del equipo, el detector y la fuente; no se garantiza una tasa fija. |
+| RNF-04 | Protección de acceso | Autenticación, permisos por propietario y protección CSRF de Django. El despliegue público requiere configurar HTTPS, clave secreta y hosts permitidos. |
+| RNF-05 | Persistencia y trazabilidad | Sesiones, muestras y cruces quedan en PostgreSQL; una cola separa el guardado del procesamiento de video. |
+| RNF-06 | Reproducibilidad | `requirements.txt`, `.env.example` y el README describen dependencias y puesta en marcha; no se versiona el entorno virtual. |
+| RNF-07 | Verificabilidad | Existe una suite automatizada y un plan de pruebas. Las pruebas sintéticas no sustituyen el contraste manual con personas reales. |
+| RNF-08 | Límite de concurrencia | Un proceso mantiene una sola fuente y sesión de video activa; varios procesos independientes no comparten el estado del motor. |
+
 ## 3. Organización del equipo
 
 Tema: **Conteo de personas en el laboratorio**. Guía G003-S12, grupo de cinco integrantes.
@@ -100,6 +132,27 @@ El navegador consume páginas Django, estadísticas JSON y video MJPEG. `StreamM
 | Snapshot | Metadatos y referencia a imagen |
 
 El historial se filtra por propietario, con acceso adicional para staff. El video activo se comparte entre autenticados del mismo proceso. Se admite una sesión activa por proceso. [Arquitectura detallada](ARCHITECTURE.md).
+
+### Librerías, servicios y propósito
+
+Versiones fijadas en `requirements.txt`; PostgreSQL es el servicio de base de datos y el modelo ONNX es un recurso de detección, no una librería Python.
+
+| Componente | Versión | Uso en el sistema |
+|---|---|---|
+| Python | 3.11 o superior | Lenguaje del servidor y del motor de visión. |
+| Django | 5.2.19 | Rutas, formularios, autenticación, plantillas, ORM y pruebas. |
+| opencv-python (`cv2`) | 4.14.0.94 | Cámara/video, DNN YOLO, HOG, MOG2, anotaciones y codificación JPEG. |
+| NumPy | 2.5.4 | Matrices de fotogramas y operaciones numéricas usadas por OpenCV. |
+| psycopg[binary] | 3.3.8 | Conexión de Django con PostgreSQL. |
+| python-dotenv | 1.2.4 | Lectura local de variables del archivo `.env`. |
+| Pillow | 11.3.0 | Soporte de imágenes en los campos de Django para capturas. |
+| asgiref / sqlparse | 3.13.0 / 0.6.1 | Dependencias transitivas de Django fijadas para reproducibilidad. |
+| PostgreSQL | 16 | Base de datos de sesiones y resultados; se probó una instancia local 16.15. |
+| HTML, CSS y JavaScript | Propios | Interfaz, actualización de métricas y gráficas Canvas sin CDN. |
+
+### Flujo de los datos
+
+OpenCV abre la fuente y entrega fotogramas. El detector localiza personas o, en la demo, recibe cajas sintéticas; el seguimiento relaciona detecciones entre fotogramas y asigna IDs temporales. `PeopleCounter` determina las personas visibles y los cruces de la línea, dibuja cajas e indicadores y codifica el fotograma como JPEG. `StreamManager` publica el último fotograma mediante MJPEG y guarda muestras y eventos en PostgreSQL. El navegador actualiza las tarjetas con la API JSON y permite revisar historial, capturas y CSV. [Detalle técnico](ARCHITECTURE.md).
 
 ## 7. Matriz de riesgos
 
